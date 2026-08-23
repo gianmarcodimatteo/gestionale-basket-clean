@@ -46,11 +46,15 @@ const upload = multer({
 });
 
 const uploadToSpacesMiddleware = async (req, res, next) => {
+  console.log('📤 uploadToSpacesMiddleware - req.file:', req.file ? `${req.file.originalname} (${req.file.size} bytes)` : 'NO FILE');
   if (req.file) {
     try {
+      console.log('⏳ Uploading to Spaces...');
       const fileUrl = await uploadToSpaces(req.file, 'scouting');
       req.file.location = fileUrl;
+      console.log('✅ File uploaded to Spaces:', fileUrl);
     } catch (error) {
+      console.error('❌ Upload failed:', error.message);
       return res.status(500).json({ error: 'Failed to upload file' });
     }
   }
