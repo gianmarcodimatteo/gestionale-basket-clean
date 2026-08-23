@@ -108,6 +108,12 @@ export default function CalendarPage() {
         start: new Date(e.startTime),
         end: e.endTime ? new Date(e.endTime) : new Date(e.startTime),
       }));
+      console.log('📅 Loaded events:', formattedEvents.map(e => ({
+        title: e.title,
+        startTime: e.startTime,
+        start: e.start,
+        startFormatted: e.start.toISOString(),
+      })));
       setEvents(formattedEvents);
     } catch (error) {
       console.error('Error loading events:', error);

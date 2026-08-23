@@ -120,6 +120,8 @@ export async function createEvent(req, res) {
   try {
     const { title, description, type, startTime, endTime, location, opponent, notes, participants, isRecurring, recurrence, createdBy } = req.body;
 
+    console.log('📅 Creating event:', { title, startTime, received: new Date(startTime).toISOString() });
+
     // Validazione
     if (!title || !startTime || !type) {
       return res.status(400).json({ success: false, error: 'Campi obbligatori mancanti: title, startTime, type' });
