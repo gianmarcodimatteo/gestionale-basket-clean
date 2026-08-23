@@ -118,6 +118,7 @@ export async function updateScoutingReport(req, res) {
     if (req.file) {
       updateData.fileUrl = req.file.location;
       updateData.fileType = path.extname(req.file.originalname).toLowerCase().replace('.', '');
+      console.log('✓ File uploaded to Spaces:', req.file.location);
     }
 
     const report = await prisma.scoutingReport.update({
