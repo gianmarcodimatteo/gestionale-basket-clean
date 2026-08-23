@@ -25,6 +25,7 @@ import scoutingSectionsRoutes from './routes/scoutingSections.js';
 import shootingStatsRoutes from './routes/shootingStats.js';
 import usersRoutes from './routes/users.js';
 import notificationsRoutes from './routes/notifications.js';
+import dailyReportRoutes from './routes/dailyReport.js';
 
 // Middleware imports
 import { verifyToken } from './middleware/auth.js';
@@ -135,6 +136,9 @@ app.use('/api/users', usersRoutes);
 
 // Notifications routes (require authentication)
 app.use('/api/notifications', verifyToken, notificationsRoutes);
+
+// Daily Report routes (require authentication)
+app.use('/api/daily-reports', verifyToken, dailyReportRoutes);
 
 // ============= FRONTEND & SPA ROUTING =============
 

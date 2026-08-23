@@ -18,6 +18,34 @@ export default function DailyReport() {
   const [editingSection, setEditingSection] = useState(null);
   const [editingType, setEditingType] = useState(null);
   const [editText, setEditText] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadReport();
+  }, [currentDate]);
+
+  const loadReport = async () => {
+    try {
+      setLoading(true);
+      const dateStr = format(currentDate, 'yyyy-MM-dd');
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/daily-reports?date=${dateStr}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+        const { data } = await response.json();
+        setReport(data || {
+          coaching: { pre: '', post: '' },
+          strength: { pre: '', post: '' },
+          medical: { pre: '', post: '' },
+        });
+      }
+    } catch (error) {
+      console.error('Error loading report:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleOpenEdit = (sectionId, type) => {
     setEditingSection(sectionId);
@@ -25,14 +53,31 @@ export default function DailyReport() {
     setEditText(report[sectionId][type] || '');
   };
 
-  const handleSaveEdit = () => {
-    setReport({
+  const handleSaveEdit = async () => {
+    const newReport = {
       ...report,
       [editingSection]: {
         ...report[editingSection],
         [editingType]: editText,
       },
-    });
+    };
+    setReport(newReport);
+
+    try {
+      const dateStr = format(currentDate, 'yyyy-MM-dd');
+      const token = localStorage.getItem('token');
+      await fetch('/api/daily-reports', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ date: dateStr, ...newReport }),
+      });
+    } catch (error) {
+      console.error('Error saving report:', error);
+    }
+
     setEditingSection(null);
     setEditingType(null);
   };
