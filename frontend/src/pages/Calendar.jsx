@@ -471,11 +471,11 @@ export default function CalendarPage() {
                 else setCurrentDate(new Date(currentDate.getTime() + 1 * 24 * 60 * 60 * 1000));
               }} style={{ background: 'rgba(0, 217, 255, 0.2)', color: '#00D9FF', padding: '0.5rem 1rem', border: '1px solid rgba(0, 217, 255, 0.3)', borderRadius: '0.35rem', cursor: 'pointer', fontWeight: 600 }}>Next →</button>
             </div>
-            {events.length === 0 ? (
+            {getFilteredEvents().length === 0 ? (
               <div style={{ textAlign: 'center', padding: '2rem', color: '#cbd5e1' }}>📋 No events</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {events.map(event => (
+                {getFilteredEvents().map(event => (
                   <div key={event.id} onClick={() => handleSelectEvent(event)} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: 'rgba(0, 217, 255, 0.05)', border: '1px solid rgba(0, 217, 255, 0.15)', borderRadius: '0.5rem', cursor: 'pointer', transition: 'all 200ms ease' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(0, 217, 255, 0.1)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(0, 217, 255, 0.05)'}>
                     <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: EVENT_TYPES[event.type]?.color || '#00D9FF', flexShrink: 0 }}></div>
                     <div style={{ flex: 1 }}>
