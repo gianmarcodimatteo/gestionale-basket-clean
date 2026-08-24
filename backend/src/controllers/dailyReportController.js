@@ -50,6 +50,8 @@ export async function saveDailyReport(req, res) {
     await ensureReportsDir();
 
     const { date, coaching, strength, medical } = req.body;
+    console.log('💾 saveDailyReport received:', { date, coaching, strength, medical });
+
     if (!date) {
       return res.status(400).json({ error: 'Date parameter required' });
     }
@@ -64,10 +66,12 @@ export async function saveDailyReport(req, res) {
       updatedBy: req.user?.id,
     };
 
+    console.log('📝 Saving to file:', reportPath);
     await fs.writeFile(reportPath, JSON.stringify(data, null, 2), 'utf-8');
+    console.log('✅ Daily report saved successfully');
     res.status(201).json({ data });
   } catch (error) {
-    console.error('Error:', error);
+    console.error('❌ Error saving daily report:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 }
