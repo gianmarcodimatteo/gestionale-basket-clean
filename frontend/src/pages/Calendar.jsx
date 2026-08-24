@@ -123,15 +123,39 @@ export default function CalendarPage() {
   };
 
   const getFilteredEvents = () => {
-    if (viewMode === 'week' && currentDate) {
-      const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
-      const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
-      return events.filter(e => {
-        const eventDate = new Date(e.start);
-        return eventDate >= weekStart && eventDate < weekEnd;
-      });
+    if (!events || events.length === 0) return events;
+
+    switch (viewMode) {
+      case 'day': {
+        const dayStart = new Date(currentDate);
+        dayStart.setHours(0, 0, 0, 0);
+        const dayEnd = new Date(dayStart);
+        dayEnd.setDate(dayEnd.getDate() + 1);
+        return events.filter(e => {
+          const eventDate = new Date(e.start);
+          return eventDate >= dayStart && eventDate < dayEnd;
+        });
+      }
+      case 'week': {
+        const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
+        const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+        return events.filter(e => {
+          const eventDate = new Date(e.start);
+          return eventDate >= weekStart && eventDate < weekEnd;
+        });
+      }
+      case 'month': {
+        const monthStart = startOfMonth(currentDate);
+        const monthEnd = endOfMonth(currentDate);
+        return events.filter(e => {
+          const eventDate = new Date(e.start);
+          return eventDate >= monthStart && eventDate <= monthEnd;
+        });
+      }
+      case 'agenda':
+      default:
+        return events;
     }
-    return events;
   };
 
   const handleSelectSlot = (slotInfo) => {
