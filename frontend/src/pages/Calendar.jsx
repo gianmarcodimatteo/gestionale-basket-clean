@@ -122,6 +122,18 @@ export default function CalendarPage() {
     }
   };
 
+  const getFilteredEvents = () => {
+    if (viewMode === 'week' && currentDate) {
+      const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
+      const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+      return events.filter(e => {
+        const eventDate = new Date(e.start);
+        return eventDate >= weekStart && eventDate < weekEnd;
+      });
+    }
+    return events;
+  };
+
   const handleSelectSlot = (slotInfo) => {
     if (!canEdit) return;
     setSelectedEvent(null);
@@ -492,7 +504,7 @@ export default function CalendarPage() {
           <div className="calendar-container" style={{ flex: 1 }}>
             <Calendar
             localizer={localizer}
-            events={events}
+            events={getFilteredEvents()}
             startAccessor="start"
             endAccessor="end"
             style={{ height: '75vh' }}

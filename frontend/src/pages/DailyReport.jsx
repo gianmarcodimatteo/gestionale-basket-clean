@@ -54,6 +54,7 @@ export default function DailyReport() {
   };
 
   const handleSaveEdit = async () => {
+    console.log('💾 Saving report...');
     const newReport = {
       ...report,
       [editingSection]: {
@@ -66,7 +67,8 @@ export default function DailyReport() {
     try {
       const dateStr = format(currentDate, 'yyyy-MM-dd');
       const token = localStorage.getItem('token');
-      await fetch('/api/daily-reports', {
+      console.log('📤 Posting to /api/daily-reports:', { date: dateStr, ...newReport });
+      const response = await fetch('/api/daily-reports', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -74,8 +76,15 @@ export default function DailyReport() {
         },
         body: JSON.stringify({ date: dateStr, ...newReport }),
       });
+      console.log('✅ Response status:', response.status);
+      if (response.ok) {
+        alert('✓ Report saved successfully!');
+      } else {
+        alert('❌ Error saving report: ' + response.statusText);
+      }
     } catch (error) {
-      console.error('Error saving report:', error);
+      console.error('❌ Error saving report:', error);
+      alert('Error: ' + error.message);
     }
 
     setEditingSection(null);
