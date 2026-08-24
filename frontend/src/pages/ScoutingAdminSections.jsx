@@ -135,6 +135,27 @@ export default function ScoutingAdminPage() {
     }
   };
 
+  const handleCleanupOrphans = async () => {
+    if (!window.confirm('Delete all reports without associated Calendar events?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/scouting/cleanup/orphans', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await response.json();
+      if (response.ok) {
+        alert(`✓ Deleted ${result.deletedCount} orphan reports`);
+        loadReports();
+      } else {
+        alert('❌ Cleanup failed: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error cleaning up orphans:', error);
+      alert('Error: ' + error.message);
+    }
+  };
+
   if (loading) return <div className="page-container">Loading...</div>;
 
   const selectedReport = reports.find(r => r.id === selectedReportId);
@@ -143,6 +164,16 @@ export default function ScoutingAdminPage() {
     <div className="page-container">
       <div className="scouting-header">
         <h1>📁 Scouting Files</h1>
+        {canEdit && (
+          <button
+            onClick={handleCleanupOrphans}
+            style={{ background: 'rgba(255, 107, 53, 0.2)', color: '#FF6B35', padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: '1px solid rgba(255, 107, 53, 0.3)', fontWeight: '600', cursor: 'pointer' }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 107, 53, 0.3)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 107, 53, 0.2)'}
+          >
+            🗑️ Cleanup Orphans
+          </button>
+        )}
       </div>
 
       {/* Folders Grid */}

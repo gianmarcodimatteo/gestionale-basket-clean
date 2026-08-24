@@ -13,6 +13,7 @@ import {
   createScoutingNote,
   getScoutingNotes,
   deleteScoutingNote,
+  cleanupOrphanReports,
 } from '../controllers/scoutingController.js';
 
 const router = express.Router();
@@ -81,5 +82,8 @@ router.delete('/:id', verifyToken, checkEditPermission, deleteScoutingReport);
 router.get('/:id/notes', verifyToken, getScoutingNotes);
 router.post('/notes/create', verifyToken, createScoutingNote);
 router.delete('/notes/:id', verifyToken, checkEditPermission, deleteScoutingNote);
+
+// Cleanup routes
+router.post('/cleanup/orphans', verifyToken, checkEditPermission, cleanupOrphanReports);
 
 export default router;

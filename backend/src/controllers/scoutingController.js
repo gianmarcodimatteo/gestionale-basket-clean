@@ -240,6 +240,34 @@ export async function getScoutingNotes(req, res) {
   }
 }
 
+export async function cleanupOrphanReports(req, res) {
+  try {
+    const orphanReports = await prisma.scoutingReport.findMany({
+      where: {
+        OR: [
+          { eventId: null },
+          { eventId: { not: null } }
+        ]
+      },
+      include: { event: true }
+    });
+
+    let deletedCount = 0;
+    for (const report of orphanReports) {
+      // Se eventId è null o l'evento associato non esiste più, elimina il report
+      if (!report.eventId || !report.event) {
+        await prisma.scoutingReport.delete({ where: { id: report.id } });
+        deletedCount++;
+      }
+    }
+
+    res.json({ success: true, message: `Deleted ${deletedCount} orphan reports`, deletedCount });
+  } catch (error) {
+    console.error('Error cleaning up orphan reports:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+}
+
 export async function deleteScoutingNote(req, res) {
   try {
     const { id } = req.params;
