@@ -417,14 +417,36 @@ export default function CalendarPage() {
 
                 <div style={{ display: 'flex', gap: '1rem' }}>
                   <button
-                    onClick={() => {
-                      setDailyReport({
+                    onClick={async () => {
+                      const newReport = {
                         ...dailyReport,
                         [editingSection]: {
                           ...dailyReport[editingSection],
                           [editingType]: editText,
                         },
-                      });
+                      };
+                      setDailyReport(newReport);
+
+                      try {
+                        const dateStr = format(currentDate, 'yyyy-MM-dd');
+                        const token = localStorage.getItem('token');
+                        const response = await fetch('/api/daily-reports', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${token}`,
+                          },
+                          body: JSON.stringify({ date: dateStr, ...newReport }),
+                        });
+                        if (response.ok) {
+                          alert('✓ Report saved successfully!');
+                        } else {
+                          alert('❌ Error saving report');
+                        }
+                      } catch (error) {
+                        console.error('Error saving:', error);
+                        alert('Error: ' + error.message);
+                      }
                       setEditingSection(null);
                     }}
                     style={{ flex: 1, background: 'linear-gradient(135deg, #7FFF00, #90EE90)', color: '#000', padding: '0.75rem 1.5rem', border: 'none', borderRadius: '0.5rem', fontWeight: 600, cursor: 'pointer' }}
