@@ -97,6 +97,12 @@ export default function CalendarPage() {
     loadEvents();
   }, [currentDate]);
 
+  useEffect(() => {
+    if (viewMode === 'daily-report' && dailyReportAuthenticated) {
+      loadDailyReport();
+    }
+  }, [currentDate, viewMode, dailyReportAuthenticated]);
+
   const loadEvents = async () => {
     try {
       setLoading(true);
@@ -119,6 +125,32 @@ export default function CalendarPage() {
       console.error('Error loading events:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadDailyReport = async () => {
+    try {
+      const dateStr = format(currentDate, 'yyyy-MM-dd');
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/daily-reports?date=${dateStr}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+        const { data } = await response.json();
+        setDailyReport(data || {
+          coaching: { pre: '', post: '' },
+          strength: { pre: '', post: '' },
+          medical: { pre: '', post: '' },
+        });
+      } else {
+        setDailyReport({
+          coaching: { pre: '', post: '' },
+          strength: { pre: '', post: '' },
+          medical: { pre: '', post: '' },
+        });
+      }
+    } catch (error) {
+      console.error('Error loading daily report:', error);
     }
   };
 
