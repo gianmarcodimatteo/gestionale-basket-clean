@@ -5,6 +5,6 @@ import { getDailyReport, saveDailyReport } from '../controllers/dailyReportContr
 const router = express.Router();
 
 router.get('/', verifyToken, getDailyReport);
-router.post('/', saveDailyReport);
+router.post('/', verifyToken, saveDailyReport);
 
 export default router;

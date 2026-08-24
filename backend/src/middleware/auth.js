@@ -9,11 +9,13 @@ export const verifyToken = (req, res, next) => {
     return res.status(401).json({ error: 'Token not provided' });
   }
 
+  console.log('🔐 Verifying token, JWT_SECRET is:', process.env.JWT_SECRET ? 'SET' : 'NOT SET');
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
-      console.error('Token verification error:', err);
+      console.error('❌ Token verification error:', err.message);
       return res.status(403).json({ error: 'Invalid or expired token' });
     }
+    console.log('✅ Token verified for user:', user.email);
     req.user = user;
     next();
   });

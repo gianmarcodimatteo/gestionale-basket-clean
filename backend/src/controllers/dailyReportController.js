@@ -51,6 +51,7 @@ export async function saveDailyReport(req, res) {
 
     const { date, coaching, strength, medical } = req.body;
     console.log('💾 saveDailyReport received:', { date, coaching, strength, medical });
+    console.log('👤 User from token:', req.user);
 
     if (!date) {
       return res.status(400).json({ error: 'Date parameter required' });
