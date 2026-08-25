@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, X, Trash2, Edit, Download, Tag, Video, FileText } from 'lucide-react';
-import { getPlaybooks, getAllTags, createPlaybook, updatePlaybook, deletePlaybook } from '../services/playbookService.js';
+import { Plus, X, Trash2, Edit, Download, Video, FileText } from 'lucide-react';
+import { getPlaybooks, createPlaybook, updatePlaybook, deletePlaybook } from '../services/playbookService.js';
 import { getAuthenticatedFileUrl } from '../utils/fileUrl.js';
 import '../styles/Playbook.css';
 
 export default function PlaybookPage() {
   const [playbooks, setPlaybooks] = useState([]);
-  const [allTags, setAllTags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('Offensive');
-  const [selectedTags, setSelectedTags] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPlaybook, setSelectedPlaybook] = useState(null);
   const [pdfViewerOpen, setPdfViewerOpen] = useState(false);
@@ -20,11 +18,9 @@ export default function PlaybookPage() {
     name: '',
     description: '',
     side: 'Offensive',
-    tags: [],
     notes: '',
     file: null,
   });
-  const [tagInput, setTagInput] = useState('');
 
   const userRole = JSON.parse(localStorage.getItem('user') || '{}').role;
   const canEdit = ['ADMIN', 'EDITOR'].includes(userRole);
@@ -36,12 +32,8 @@ export default function PlaybookPage() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [playbooksRes, tagsRes] = await Promise.all([
-        getPlaybooks(),
-        getAllTags(),
-      ]);
+      const playbooksRes = await getPlaybooks();
       setPlaybooks(playbooksRes.data || []);
-      setAllTags(tagsRes.data || []);
     } catch (error) {
       console.error('Error loading:', error);
     } finally {
@@ -134,22 +126,6 @@ export default function PlaybookPage() {
     setIsModalOpen(true);
   };
 
-  const handleAddTag = () => {
-    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
-      setFormData({
-        ...formData,
-        tags: [...formData.tags, tagInput.trim()],
-      });
-      setTagInput('');
-    }
-  };
-
-  const handleRemoveTag = (tag) => {
-    setFormData({
-      ...formData,
-      tags: formData.tags.filter(t => t !== tag),
-    });
-  };
 
   const resetForm = () => {
     setIsModalOpen(false);
@@ -158,21 +134,12 @@ export default function PlaybookPage() {
       name: '',
       description: '',
       side: 'Offensive',
-      tags: [],
       notes: '',
       file: null,
     });
   };
 
-  const filteredPlaybooks = playbooks.filter(pb => {
-    const sideMatch = pb.side === activeTab;
-    const tagMatch = selectedTags.length === 0 || 
-      selectedTags.some(tag => {
-        const pbTags = pb.tags ? JSON.parse(pb.tags) : [];
-        return pbTags.includes(tag);
-      });
-    return sideMatch && tagMatch;
-  });
+  const filteredPlaybooks = playbooks.filter(pb => pb.side === activeTab);
 
   return (
     <div className="page-container">
@@ -200,28 +167,6 @@ export default function PlaybookPage() {
         </button>
       </div>
 
-      {allTags.length > 0 && (
-        <div className="tag-filter">
-          <div className="filter-label">Filter by tags:</div>
-          <div className="tag-list">
-            {allTags.map(tag => (
-              <button
-                key={tag}
-                className={`tag-filter-btn ${selectedTags.includes(tag) ? 'active' : ''}`}
-                onClick={() => {
-                  setSelectedTags(prev =>
-                    prev.includes(tag)
-                      ? prev.filter(t => t !== tag)
-                      : [...prev, tag]
-                  );
-                }}
-              >
-                <Tag size={14} /> {tag}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '2rem' }}>⏳ Loading...</div>
@@ -275,13 +220,6 @@ export default function PlaybookPage() {
                 </a>
               </div>
 
-              {formData.tags && formData.tags.length > 0 && (
-                <div className="playbook-tags">
-                  {JSON.parse(playbook.tags || '[]').map(tag => (
-                    <span key={tag} className="tag-badge">{tag}</span>
-                  ))}
-                </div>
-              )}
 
               {playbook.notes && (
                 <div className="playbook-notes">
@@ -338,29 +276,6 @@ export default function PlaybookPage() {
                 </div>
               </div>
 
-              <div className="form-group">
-                <label>Tags</label>
-                <div className="tag-input-group">
-                  <input
-                    type="text"
-                    value={tagInput}
-                    onChange={e => setTagInput(e.target.value)}
-                    onKeyPress={e => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                    placeholder="Add tag and press Enter"
-                  />
-                  <button type="button" onClick={handleAddTag} className="btn-add-tag">+</button>
-                </div>
-                {formData.tags.length > 0 && (
-                  <div className="tag-list-edit">
-                    {formData.tags.map(tag => (
-                      <span key={tag} className="tag-edit">
-                        {tag}
-                        <button type="button" onClick={() => handleRemoveTag(tag)} className="tag-remove">×</button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
 
               <div className="form-group">
                 <label>Notes</label>

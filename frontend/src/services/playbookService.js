@@ -21,14 +21,6 @@ export async function getPlaybookById(id) {
   return response.json();
 }
 
-export async function getAllTags() {
-  const response = await fetch(`${API_URL}/tags/all`, {
-    headers: { Authorization: `Bearer ${getToken()}` },
-  });
-
-  if (!response.ok) throw new Error('Error loading tags');
-  return response.json();
-}
 
 export async function createPlaybook(data) {
   const formData = new FormData();
@@ -36,9 +28,6 @@ export async function createPlaybook(data) {
   formData.append('description', data.description);
   formData.append('side', data.side);
   formData.append('notes', data.notes);
-  if (data.tags && data.tags.length > 0) {
-    formData.append('tags', JSON.stringify(data.tags));
-  }
   if (data.file) {
     formData.append('file', data.file);
   }
@@ -60,7 +49,6 @@ export async function updatePlaybook(id, data) {
   if (data.name) formData.append('name', data.name);
   if (data.description) formData.append('description', data.description);
   if (data.side) formData.append('side', data.side);
-  if (data.tags) formData.append('tags', JSON.stringify(data.tags));
   if (data.notes) formData.append('notes', data.notes);
   if (data.file) formData.append('file', data.file);
 

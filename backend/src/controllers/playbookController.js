@@ -23,8 +23,13 @@ export async function getPlaybooks(req, res) {
     if (tags) {
       const tagsArray = Array.isArray(tags) ? tags : [tags];
       playbooks = playbooks.filter(p => {
-        const pbTags = p.tags ? JSON.parse(p.tags) : [];
-        return tagsArray.some(tag => pbTags.includes(tag));
+        try {
+          const pbTags = p.tags ? JSON.parse(p.tags) : [];
+          return Array.isArray(pbTags) && tagsArray.some(tag => pbTags.includes(tag));
+        } catch (e) {
+          console.warn('Invalid tags JSON in playbook:', p.tags);
+          return false;
+        }
       });
     }
 
@@ -145,7 +150,14 @@ export async function getAllTags(req, res) {
     const tagsSet = new Set();
     playbooks.forEach(p => {
       if (p.tags) {
-        JSON.parse(p.tags).forEach(tag => tagsSet.add(tag));
+        try {
+          const parsedTags = JSON.parse(p.tags);
+          if (Array.isArray(parsedTags)) {
+            parsedTags.forEach(tag => tagsSet.add(tag));
+          }
+        } catch (e) {
+          console.warn('Invalid tags JSON:', p.tags);
+        }
       }
     });
 
