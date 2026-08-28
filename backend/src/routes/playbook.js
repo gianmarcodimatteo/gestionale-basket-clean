@@ -63,10 +63,18 @@ const checkEditPermission = (req, res, next) => {
   next();
 };
 
+const checkDownloadPermission = (req, res, next) => {
+  const user = req.user;
+  if (!['ADMIN', 'EDITOR'].includes(user?.role)) {
+    return res.status(403).json({ success: false, error: 'Unauthorized - only ADMIN and EDITOR can access playbooks' });
+  }
+  next();
+};
+
 // Routes
-router.get('/', verifyToken, getPlaybooks);
-router.get('/tags/all', verifyToken, getAllTags);
-router.get('/:id', verifyToken, getPlaybookById);
+router.get('/', verifyToken, checkDownloadPermission, getPlaybooks);
+router.get('/tags/all', verifyToken, checkDownloadPermission, getAllTags);
+router.get('/:id', verifyToken, checkDownloadPermission, getPlaybookById);
 router.post('/', verifyToken, checkEditPermission, upload.single('file'), uploadToSpacesMiddleware, createPlaybook);
 router.put('/:id', verifyToken, checkEditPermission, upload.single('file'), uploadToSpacesMiddleware, updatePlaybook);
 router.delete('/:id', verifyToken, checkEditPermission, deletePlaybook);
