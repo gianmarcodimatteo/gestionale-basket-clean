@@ -215,9 +215,11 @@ export default function PlaybookPage() {
                     <FileText size={18} /> View PDF
                   </button>
                 )}
-                <a href={getAuthenticatedFileUrl(playbook.fileUrl)} download className="file-link">
-                  <FileText size={18} /> Download
-                </a>
+                {canEdit && (
+                  <a href={getAuthenticatedFileUrl(playbook.fileUrl)} download className="file-link">
+                    <FileText size={18} /> Download
+                  </a>
+                )}
               </div>
 
 

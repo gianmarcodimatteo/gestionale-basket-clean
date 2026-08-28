@@ -207,7 +207,7 @@ export default function ScoutingAdminPage() {
                 </div>
               )}
 
-              {report.fileUrl && (
+              {report.fileUrl && canEdit && (
                 <div className="file-section">
                   <a href={report.fileUrl} target="_blank" rel="noopener noreferrer" className="file-link">
                     {getFileIcon(report.fileType)}
