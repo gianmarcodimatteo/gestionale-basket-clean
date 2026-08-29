@@ -345,3 +345,125 @@
     font-size: 1.5rem;
   }
 }
+
+/* CRITICAL: Mobile responsiveness for 480px and below */
+@media (max-width: 480px) {
+  .page-container {
+    padding: 1rem;
+    max-width: 100%;
+  }
+
+  .shooting-header {
+    margin-bottom: 1rem;
+  }
+
+  .shooting-header h1 {
+    font-size: 1.5rem;
+  }
+
+  /* Players Table - Mobile optimized */
+  .players-table-container,
+  .stats-table-detail-container {
+    overflow-x: auto;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    border-radius: 0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .players-table,
+  .stats-table-detail {
+    font-size: 0.8rem;
+    min-width: 100%;
+    table-layout: auto;
+  }
+
+  .players-table th,
+  .players-table td,
+  .stats-table-detail th,
+  .stats-table-detail td {
+    padding: 0.5rem 0.35rem;
+    font-size: 0.8rem;
+  }
+
+  .players-table th {
+    font-size: 0.75rem;
+  }
+
+  .player-name {
+    font-size: 0.9rem;
+  }
+
+  .player-position {
+    font-size: 0.65rem;
+  }
+
+  .shot-btn {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  /* Player Stats Detail */
+  .player-stats-view {
+    padding: 1rem;
+    min-height: auto;
+  }
+
+  .stats-header {
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .header-info h1 {
+    font-size: 1.25rem;
+  }
+
+  .header-info h3 {
+    font-size: 0.9rem;
+  }
+
+  /* Stats Grid Mobile */
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .stat-item {
+    padding: 1rem;
+  }
+
+  .stat-item h3 {
+    font-size: 0.85rem;
+  }
+
+  .stat-item p {
+    font-size: 0.9rem;
+  }
+
+  /* Zones Grid Mobile */
+  .zones-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .zone-card {
+    padding: 1rem;
+  }
+
+  /* Back button */
+  .back-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Ensure touch targets are minimum 44px */
+  .shot-btn,
+  .back-btn {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
