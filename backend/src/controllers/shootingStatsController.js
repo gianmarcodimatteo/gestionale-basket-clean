@@ -24,7 +24,7 @@ export async function getShootingStats(req, res) {
 
 export async function createShootingStats(req, res) {
   try {
-    const { rosterId, date, lhCorM, lhCorA, lhWgM, lhWgA, topM, topA, rtWgM, rtWgA, rtCorM, rtCorA, notes } = req.body;
+    const { rosterId, date, shotType, lhCorM, lhCorA, lhWgM, lhWgA, topM, topA, rtWgM, rtWgA, rtCorM, rtCorA, notes } = req.body;
 
     if (!rosterId || !date) {
       return res.status(400).json({ success: false, error: 'Missing required fields' });
@@ -34,6 +34,7 @@ export async function createShootingStats(req, res) {
       data: {
         rosterId,
         date: new Date(date),
+        shotType: shotType || '2PTS',
         lhCorM: lhCorM || 0,
         lhCorA: lhCorA || 0,
         lhWgM: lhWgM || 0,

@@ -27,13 +27,39 @@ export default function PracticesShooting() {
   const loadPlayers = async () => {
     try {
       setLoading(true);
+      const token = localStorage.getItem('token');
       const response = await fetch('/api/roster?limit=100', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       const result = await response.json();
       setPlayers(result.data || []);
-      const savedStats = JSON.parse(localStorage.getItem('shootingStats') || '{}');
-      setStats(savedStats);
+
+      // Load stats from API for all players
+      const allStats = {};
+      for (const player of (result.data || [])) {
+        try {
+          const statsResponse = await fetch(`/api/shooting-stats?rosterId=${player.id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const statsResult = await statsResponse.json();
+          if (statsResult.data) {
+            statsResult.data.forEach(stat => {
+              const key = `${player.id}-${stat.shotType || '2PTS'}`;
+              if (!allStats[key]) allStats[key] = {};
+              allStats[key][stat.date?.split('T')[0] || stat.date] = {
+                LH_COR: { made: stat.lhCorM || 0, attempted: stat.lhCorA || 0 },
+                LH_WG: { made: stat.lhWgM || 0, attempted: stat.lhWgA || 0 },
+                TOP: { made: stat.topM || 0, attempted: stat.topA || 0 },
+                RT_WG: { made: stat.rtWgM || 0, attempted: stat.rtWgA || 0 },
+                RT_COR: { made: stat.rtCorM || 0, attempted: stat.rtCorA || 0 },
+              };
+            });
+          }
+        } catch (err) {
+          console.error(`Error loading stats for player ${player.id}:`, err);
+        }
+      }
+      setStats(allStats);
     } catch (error) {
       console.error('Error loading players:', error);
     } finally {
@@ -116,28 +142,62 @@ function PlayerStatsDetailView({ player, shotType, stats, setStats, onClose, can
     setDailyStats(records);
   };
 
-  const addRecord = () => {
+  const addRecord = async () => {
     if (!newDate) return;
 
     const hasData = SHOOTING_ZONES.some(zone => newZoneData[zone.id].made || newZoneData[zone.id].attempted);
     if (!hasData) return;
 
-    const key = `${player.id}-${shotType}`;
-    if (!stats[key]) stats[key] = {};
+    try {
+      // Save to API
+      const apiPayload = {
+        rosterId: player.id,
+        date: newDate,
+        shotType: shotType,
+        lhCorM: parseInt(newZoneData.LH_COR.made) || 0,
+        lhCorA: parseInt(newZoneData.LH_COR.attempted) || 0,
+        lhWgM: parseInt(newZoneData.LH_WG.made) || 0,
+        lhWgA: parseInt(newZoneData.LH_WG.attempted) || 0,
+        topM: parseInt(newZoneData.TOP.made) || 0,
+        topA: parseInt(newZoneData.TOP.attempted) || 0,
+        rtWgM: parseInt(newZoneData.RT_WG.made) || 0,
+        rtWgA: parseInt(newZoneData.RT_WG.attempted) || 0,
+        rtCorM: parseInt(newZoneData.RT_COR.made) || 0,
+        rtCorA: parseInt(newZoneData.RT_COR.attempted) || 0,
+      };
 
-    stats[key][newDate] = SHOOTING_ZONES.reduce((acc, zone) => ({
-      ...acc,
-      [zone.id]: {
-        made: parseInt(newZoneData[zone.id].made) || 0,
-        attempted: parseInt(newZoneData[zone.id].attempted) || 0,
-      }
-    }), {});
+      const response = await fetch('/api/shooting-stats', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(apiPayload),
+      });
 
-    setStats({ ...stats });
-    localStorage.setItem('shootingStats', JSON.stringify(stats));
-    loadDailyStats();
-    setNewDate(new Date().toISOString().split('T')[0]);
-    setNewZoneData(SHOOTING_ZONES.reduce((acc, zone) => ({ ...acc, [zone.id]: { made: '', attempted: '' } }), {}));
+      if (!response.ok) throw new Error('Failed to save stats');
+
+      // Update local state
+      const key = `${player.id}-${shotType}`;
+      if (!stats[key]) stats[key] = {};
+
+      stats[key][newDate] = SHOOTING_ZONES.reduce((acc, zone) => ({
+        ...acc,
+        [zone.id]: {
+          made: parseInt(newZoneData[zone.id].made) || 0,
+          attempted: parseInt(newZoneData[zone.id].attempted) || 0,
+        }
+      }), {});
+
+      setStats({ ...stats });
+      localStorage.setItem('shootingStats', JSON.stringify(stats));
+      loadDailyStats();
+      setNewDate(new Date().toISOString().split('T')[0]);
+      setNewZoneData(SHOOTING_ZONES.reduce((acc, zone) => ({ ...acc, [zone.id]: { made: '', attempted: '' } }), {}));
+    } catch (error) {
+      console.error('Error saving shooting stats:', error);
+      alert('Failed to save shooting stats');
+    }
   };
 
   const getColor = (percentage) => {

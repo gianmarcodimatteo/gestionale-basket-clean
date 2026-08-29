@@ -468,6 +468,7 @@ model PracticesShootingStats {
   roster        Roster   @relation(fields: [rosterId], references: [id], onDelete: Cascade)
 
   date          DateTime
+  shotType      String   @default("2PTS")  // 2PTS or 3PTS
 
   // Left Hand Corner
   lhCorM        Int?     // Made
