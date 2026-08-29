@@ -334,7 +334,7 @@ export default function CalendarPage() {
         <button className={`view-btn ${viewMode === 'day' ? 'active' : ''}`} onClick={() => setViewMode('day')}>Day</button>
         <button className={`view-btn ${viewMode === 'week' ? 'active' : ''}`} onClick={() => setViewMode('week')}>Week</button>
         <button className={`view-btn ${viewMode === 'month' ? 'active' : ''}`} onClick={() => setViewMode('month')}>Month</button>
-        <button className={`view-btn ${viewMode === 'agenda' ? 'active' : ''}`} onClick={() => setViewMode('agenda')}>Agenda</button>
+        <button className={`view-btn agenda-btn ${viewMode === 'agenda' ? 'active' : ''}`} onClick={() => setViewMode('agenda')}>Agenda</button>
         <button className={`view-btn ${viewMode === 'daily-report' ? 'active' : ''}`} onClick={() => setViewMode('daily-report')}>📋 Daily Report</button>
       </div>
 

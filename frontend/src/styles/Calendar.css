@@ -469,6 +469,11 @@
     width: 100%;
   }
 
+  /* Hide Agenda view on tablet and below */
+  .agenda-btn {
+    display: none;
+  }
+
   .form-row {
     grid-template-columns: 1fr;
   }
