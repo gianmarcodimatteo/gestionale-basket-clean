@@ -1,3 +1,5 @@
+import { uploadWithProgress } from '../utils/uploadWithProgress.js';
+
 const API_URL = '/api/practices';
 
 const getToken = () => localStorage.getItem('token');
@@ -26,7 +28,7 @@ export async function getTrainingSessionById(id) {
   return response.json();
 }
 
-export async function createTrainingSession(data) {
+export async function createTrainingSession(data, onProgress) {
   const formData = new FormData();
   formData.append('title', data.title);
   formData.append('date', data.date);
@@ -37,19 +39,10 @@ export async function createTrainingSession(data) {
   if (data.video) formData.append('video', data.video);
   if (data.participants) formData.append('participants', JSON.stringify(data.participants));
 
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
-    body: formData,
-  });
-
-  if (!response.ok) throw new Error('Error creating training session');
-  return response.json();
+  return uploadWithProgress(API_URL, formData, 'POST', onProgress);
 }
 
-export async function updateTrainingSession(id, data) {
+export async function updateTrainingSession(id, data, onProgress) {
   const formData = new FormData();
   formData.append('title', data.title);
   formData.append('date', data.date);
@@ -60,16 +53,7 @@ export async function updateTrainingSession(id, data) {
   if (data.video) formData.append('video', data.video);
   if (data.participants) formData.append('participants', JSON.stringify(data.participants));
 
-  const response = await fetch(`${API_URL}/${id}`, {
-    method: 'PUT',
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
-    body: formData,
-  });
-
-  if (!response.ok) throw new Error('Error updating training session');
-  return response.json();
+  return uploadWithProgress(`${API_URL}/${id}`, formData, 'PUT', onProgress);
 }
 
 export async function deleteTrainingSession(id) {

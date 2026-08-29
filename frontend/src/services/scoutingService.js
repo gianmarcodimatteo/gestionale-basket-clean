@@ -1,3 +1,5 @@
+import { uploadWithProgress } from '../utils/uploadWithProgress.js';
+
 const API_URL = '/api/scouting';
 
 const getToken = () => localStorage.getItem('token');
@@ -21,7 +23,7 @@ export async function getScoutingReportById(id) {
   return response.json();
 }
 
-export async function createScoutingReport(data) {
+export async function createScoutingReport(data, onProgress) {
   const formData = new FormData();
   formData.append('opponent', data.opponent);
   if (data.matchDate) formData.append('matchDate', data.matchDate);
@@ -36,19 +38,10 @@ export async function createScoutingReport(data) {
     formData.append('file', data.file);
   }
 
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
-    body: formData,
-  });
-
-  if (!response.ok) throw new Error('Error creating scouting report');
-  return response.json();
+  return uploadWithProgress(API_URL, formData, 'POST', onProgress);
 }
 
-export async function updateScoutingReport(id, data) {
+export async function updateScoutingReport(id, data, onProgress) {
   const formData = new FormData();
   if (data.opponent) formData.append('opponent', data.opponent);
   if (data.matchDate) formData.append('matchDate', data.matchDate);
@@ -59,16 +52,7 @@ export async function updateScoutingReport(id, data) {
   if (data.keyPlayers) formData.append('keyPlayers', JSON.stringify(data.keyPlayers));
   if (data.file) formData.append('file', data.file);
 
-  const response = await fetch(`${API_URL}/${id}`, {
-    method: 'PUT',
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
-    body: formData,
-  });
-
-  if (!response.ok) throw new Error('Error updating scouting report');
-  return response.json();
+  return uploadWithProgress(`${API_URL}/${id}`, formData, 'PUT', onProgress);
 }
 
 export async function deleteScoutingReport(id) {

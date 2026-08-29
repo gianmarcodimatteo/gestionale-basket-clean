@@ -22,6 +22,8 @@ export default function ScoutingAdminPage() {
     file: null,
   });
   const [keyPlayerInput, setKeyPlayerInput] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
   const userRole = JSON.parse(localStorage.getItem('user') || '{}').role;
   const canEdit = ['ADMIN', 'EDITOR'].includes(userRole);
@@ -49,16 +51,27 @@ export default function ScoutingAdminPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsUploading(true);
+      setUploadProgress(0);
+
       if (selectedReport) {
-        await updateScoutingReport(selectedReport.id, formData);
+        await updateScoutingReport(selectedReport.id, formData, (progress) => {
+          setUploadProgress(progress);
+        });
       } else {
-        await createScoutingReport(formData);
+        await createScoutingReport(formData, (progress) => {
+          setUploadProgress(progress);
+        });
       }
       resetForm();
       setIsModalOpen(false);
+      setIsUploading(false);
+      setUploadProgress(0);
       loadData();
     } catch (error) {
       console.error('Error saving report:', error);
+      setIsUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -350,9 +363,32 @@ export default function ScoutingAdminPage() {
                 />
               </div>
 
+              {isUploading && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <div style={{ marginBottom: '0.5rem', fontSize: '0.9rem', color: '#cbd5e1' }}>
+                    Uploading... {Math.round(uploadProgress)}%
+                  </div>
+                  <div style={{
+                    width: '100%',
+                    height: '8px',
+                    background: 'rgba(127, 255, 0, 0.1)',
+                    borderRadius: '4px',
+                    overflow: 'hidden',
+                    border: '1px solid rgba(127, 255, 0, 0.3)'
+                  }}>
+                    <div style={{
+                      height: '100%',
+                      width: `${uploadProgress}%`,
+                      background: 'linear-gradient(90deg, rgba(127, 255, 0, 0.8), rgba(0, 217, 255, 0.8))',
+                      transition: 'width 0.2s ease'
+                    }} />
+                  </div>
+                </div>
+              )}
+
               <div className="form-actions">
-                <button type="submit" className="btn-save">Save Report</button>
-                <button type="button" className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancel</button>
+                <button type="submit" className="btn-save" disabled={isUploading}>Save Report</button>
+                <button type="button" className="btn-cancel" onClick={() => setIsModalOpen(false)} disabled={isUploading}>Cancel</button>
               </div>
             </form>
           </div>

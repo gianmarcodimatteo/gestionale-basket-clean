@@ -1,3 +1,5 @@
+import { uploadWithProgress } from '../utils/uploadWithProgress.js';
+
 const API_URL = '/api/playbook';
 
 const getToken = () => localStorage.getItem('token');
@@ -22,7 +24,7 @@ export async function getPlaybookById(id) {
 }
 
 
-export async function createPlaybook(data) {
+export async function createPlaybook(data, onProgress) {
   const formData = new FormData();
   formData.append('name', data.name);
   formData.append('description', data.description);
@@ -32,19 +34,10 @@ export async function createPlaybook(data) {
     formData.append('file', data.file);
   }
 
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
-    body: formData,
-  });
-
-  if (!response.ok) throw new Error('Error creating playbook');
-  return response.json();
+  return uploadWithProgress(API_URL, formData, 'POST', onProgress);
 }
 
-export async function updatePlaybook(id, data) {
+export async function updatePlaybook(id, data, onProgress) {
   const formData = new FormData();
   if (data.name) formData.append('name', data.name);
   if (data.description) formData.append('description', data.description);
@@ -52,16 +45,7 @@ export async function updatePlaybook(id, data) {
   if (data.notes) formData.append('notes', data.notes);
   if (data.file) formData.append('file', data.file);
 
-  const response = await fetch(`${API_URL}/${id}`, {
-    method: 'PUT',
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
-    body: formData,
-  });
-
-  if (!response.ok) throw new Error('Error updating playbook');
-  return response.json();
+  return uploadWithProgress(`${API_URL}/${id}`, formData, 'PUT', onProgress);
 }
 
 export async function deletePlaybook(id) {

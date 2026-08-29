@@ -18,6 +18,8 @@ export default function Practices() {
   const [clipData, setClipData] = useState({ title: '', startTime: 0, endTime: 0 });
   const [filterStartDate, setFilterStartDate] = useState('');
   const [filterEndDate, setFilterEndDate] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     date: new Date().toISOString().split('T')[0],
@@ -57,22 +59,33 @@ export default function Practices() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsUploading(true);
+      setUploadProgress(0);
+
       const payload = {
         ...formData,
         date: new Date(formData.date).toISOString(),
       };
 
       if (selectedSession) {
-        await updateTrainingSession(selectedSession.id, payload);
+        await updateTrainingSession(selectedSession.id, payload, (progress) => {
+          setUploadProgress(progress);
+        });
       } else {
-        await createTrainingSession(payload);
+        await createTrainingSession(payload, (progress) => {
+          setUploadProgress(progress);
+        });
       }
 
       resetForm();
+      setIsUploading(false);
+      setUploadProgress(0);
       loadSessions();
     } catch (error) {
       console.error('Error:', error);
       alert('Error saving training session');
+      setIsUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -450,10 +463,33 @@ export default function Practices() {
                 />
               </div>
 
+              {isUploading && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <div style={{ marginBottom: '0.5rem', fontSize: '0.9rem', color: '#cbd5e1' }}>
+                    Uploading... {Math.round(uploadProgress)}%
+                  </div>
+                  <div style={{
+                    width: '100%',
+                    height: '8px',
+                    background: 'rgba(127, 255, 0, 0.1)',
+                    borderRadius: '4px',
+                    overflow: 'hidden',
+                    border: '1px solid rgba(127, 255, 0, 0.3)'
+                  }}>
+                    <div style={{
+                      height: '100%',
+                      width: `${uploadProgress}%`,
+                      background: 'linear-gradient(90deg, rgba(127, 255, 0, 0.8), rgba(0, 217, 255, 0.8))',
+                      transition: 'width 0.2s ease'
+                    }} />
+                  </div>
+                </div>
+              )}
+
               <div className="form-actions">
-                <button type="submit" className="btn-save">💾 {selectedSession ? 'Update' : 'Create'}</button>
-                {selectedSession && <button type="button" className="btn-delete" onClick={handleDelete}>🗑️ Delete</button>}
-                <button type="button" className="btn-cancel" onClick={() => resetForm()}>✕ Cancel</button>
+                <button type="submit" className="btn-save" disabled={isUploading}>💾 {selectedSession ? 'Update' : 'Create'}</button>
+                {selectedSession && <button type="button" className="btn-delete" onClick={handleDelete} disabled={isUploading}>🗑️ Delete</button>}
+                <button type="button" className="btn-cancel" onClick={() => resetForm()} disabled={isUploading}>✕ Cancel</button>
               </div>
             </form>
           </div>
