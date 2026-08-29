@@ -18,6 +18,7 @@ import PracticesShooting from './pages/PracticesShooting';
 import MyProfile from './pages/MyProfile';
 import Playbook from './pages/Playbook';
 import Scouting from './pages/Scouting';
+import Coaches from './pages/Coaches';
 import PracticesShootingStats from './pages/PracticesShootingStats';
 import Organization from './pages/Organization';
 import Admin from './pages/Admin';
@@ -52,6 +53,7 @@ function AppContent() {
           <Route path="/my-profile" element={<MyProfile />} />
           <Route path="/playbook" element={<Playbook />} />
           <Route path="/scouting" element={<Scouting />} />
+          <Route path="/coaches" element={<Coaches />} />
           <Route path="/organization" element={<Organization />} />
           <Route path="/admin" element={<Admin />} />
         </Route>

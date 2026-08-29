@@ -12,6 +12,7 @@ const navigationItems = [
   { label: "Practices' Shooting Stats", path: '/practices-shooting', icon: Dumbbell },
   { label: 'Playbook', path: '/playbook', icon: BookOpen },
   { label: 'Scouting', path: '/scouting', icon: Crosshair },
+  { label: 'Coaches', path: '/coaches', icon: Crosshair },
   { label: 'Game Card', path: '/game-card', icon: Gamepad2 },
   { label: 'Organizzazione', path: '/organization', icon: Settings },
 ];

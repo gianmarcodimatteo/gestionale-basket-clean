@@ -18,6 +18,7 @@ const navigationItems = [
   { label: 'Practices Shooting Stats', path: '/practices-shooting', icon: Crosshair },
   { label: 'Playbook', path: '/playbook', icon: BookOpen },
   { label: 'Scouting', path: '/scouting', icon: Crosshair },
+  { label: 'Coaches', path: '/coaches', icon: Crosshair },
   { label: 'My Profile', path: '/my-profile', icon: User },
   { label: 'Organization', path: '/organization', icon: Settings },
 ];
