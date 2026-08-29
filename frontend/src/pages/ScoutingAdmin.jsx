@@ -24,6 +24,8 @@ export default function ScoutingAdminPage() {
   const [keyPlayerInput, setKeyPlayerInput] = useState('');
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [videoPlayerOpen, setVideoPlayerOpen] = useState(false);
+  const [videoSrc, setVideoSrc] = useState('');
 
   const userRole = JSON.parse(localStorage.getItem('user') || '{}').role;
   const canEdit = ['ADMIN', 'EDITOR'].includes(userRole);
@@ -148,6 +150,14 @@ export default function ScoutingAdminPage() {
     return <FileText size={20} />;
   };
 
+  const handleVideoPlay = (report) => {
+    if (report.fileUrl && (report.fileType.includes('video') || ['mp4', 'mpeg', 'mov', 'avi', 'webm'].includes(report.fileType))) {
+      setSelectedReport(report);
+      setVideoPlayerOpen(true);
+      setVideoSrc(report.fileUrl);
+    }
+  };
+
   if (loading) return <div className="page-container">Loading...</div>;
 
   return (
@@ -222,10 +232,31 @@ export default function ScoutingAdminPage() {
 
               {report.fileUrl && canEdit && (
                 <div className="file-section">
-                  <a href={report.fileUrl} target="_blank" rel="noopener noreferrer" className="file-link">
-                    {getFileIcon(report.fileType)}
-                    <span>View {report.fileType?.toUpperCase() || 'File'}</span>
-                  </a>
+                  {report.fileType && (report.fileType.includes('video') || ['mp4', 'mpeg', 'mov', 'avi', 'webm'].includes(report.fileType)) ? (
+                    <button
+                      onClick={() => handleVideoPlay(report)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        color: '#00D9FF',
+                        textDecoration: 'none',
+                        fontSize: '0.9rem',
+                      }}
+                    >
+                      <Video size={20} />
+                      <span>Play Video</span>
+                    </button>
+                  ) : (
+                    <a href={report.fileUrl} target="_blank" rel="noopener noreferrer" className="file-link">
+                      {getFileIcon(report.fileType)}
+                      <span>View {report.fileType?.toUpperCase() || 'File'}</span>
+                    </a>
+                  )}
                 </div>
               )}
 
@@ -391,6 +422,57 @@ export default function ScoutingAdminPage() {
                 <button type="button" className="btn-cancel" onClick={() => setIsModalOpen(false)} disabled={isUploading}>Cancel</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {videoPlayerOpen && selectedReport && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+        }} onClick={() => setVideoPlayerOpen(false)}>
+          <div style={{
+            background: '#1a1f3a',
+            borderRadius: '0.75rem',
+            width: '90%',
+            height: '90%',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '1rem',
+              borderBottom: '1px solid rgba(0, 217, 255, 0.2)',
+            }}>
+              <h3 style={{ margin: 0, color: '#00D9FF' }}>📹 {selectedReport.opponent} - Video Player</h3>
+              <button onClick={() => setVideoPlayerOpen(false)} style={{
+                background: 'none',
+                border: 'none',
+                color: '#cbd5e1',
+                fontSize: '1.5rem',
+                cursor: 'pointer',
+              }}>✕</button>
+            </div>
+            <video
+              src={videoSrc}
+              controls
+              style={{
+                flex: 1,
+                width: '100%',
+                background: '#000',
+              }}
+            />
           </div>
         </div>
       )}
