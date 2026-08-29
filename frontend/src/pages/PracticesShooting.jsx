@@ -218,18 +218,23 @@ function PlayerStatsDetailView({ player, shotType, stats, setStats, onClose, can
 
       console.log('✅ Successfully saved to API!');
 
-      // Update local state
+      // Update local state with ID from API response
       const key = `${player.id}-${shotType}`;
       if (!stats[key]) stats[key] = {};
 
-      stats[key][newDate] = SHOOTING_ZONES.reduce((acc, zone) => ({
-        ...acc,
-        [zone.id]: {
-          made: parseInt(newZoneData[zone.id].made) || 0,
-          attempted: parseInt(newZoneData[zone.id].attempted) || 0,
-        }
-      }), {});
+      const savedRecord = responseData.data;
+      stats[key][newDate] = {
+        id: savedRecord.id,
+        ...SHOOTING_ZONES.reduce((acc, zone) => ({
+          ...acc,
+          [zone.id]: {
+            made: parseInt(newZoneData[zone.id].made) || 0,
+            attempted: parseInt(newZoneData[zone.id].attempted) || 0,
+          }
+        }), {})
+      };
 
+      console.log('📝 Updated local stats with ID:', savedRecord.id);
       setStats({ ...stats });
       localStorage.setItem('shootingStats', JSON.stringify(stats));
       loadDailyStats();
