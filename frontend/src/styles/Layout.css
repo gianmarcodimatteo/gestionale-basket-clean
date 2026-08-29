@@ -3,6 +3,8 @@
   display: flex;
   height: 100vh;
   background: linear-gradient(135deg, var(--color-bg-darker) 0%, var(--color-bg-dark) 100%);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .main-wrapper {
