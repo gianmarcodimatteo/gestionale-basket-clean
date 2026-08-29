@@ -62,6 +62,7 @@ export default function PracticesShooting() {
               if (!allStats[key]) allStats[key] = {};
               const dateKey = stat.date ? new Date(stat.date).toISOString().split('T')[0] : stat.date;
               allStats[key][dateKey] = {
+                id: stat.id,
                 LH_COR: { made: stat.lhCorM || 0, attempted: stat.lhCorA || 0 },
                 LH_WG: { made: stat.lhWgM || 0, attempted: stat.lhWgA || 0 },
                 TOP: { made: stat.topM || 0, attempted: stat.topA || 0 },
@@ -241,6 +242,50 @@ function PlayerStatsDetailView({ player, shotType, stats, setStats, onClose, can
     }
   };
 
+  const deleteRecord = async (date) => {
+    const stat = dailyStats.find(s => s.date === date);
+    if (!stat || !stat.id) {
+      alert('❌ Cannot delete: No ID found for this record');
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to delete the record for ${date}?`)) {
+      return;
+    }
+
+    try {
+      console.log('🗑️ Deleting record ID:', stat.id);
+
+      const response = await fetch(`/api/shooting-stats/${stat.id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      console.log('📨 Delete API Response:', response.status);
+
+      if (!response.ok) {
+        throw new Error(`API Error ${response.status}`);
+      }
+
+      console.log('✅ Successfully deleted from API!');
+
+      // Update local state
+      const key = `${player.id}-${shotType}`;
+      if (stats[key] && stats[key][date]) {
+        delete stats[key][date];
+        setStats({ ...stats });
+        localStorage.setItem('shootingStats', JSON.stringify(stats));
+        loadDailyStats();
+        alert('✅ Record deleted successfully!');
+      }
+    } catch (error) {
+      console.error('❌ Error deleting shooting stats:', error);
+      alert('❌ Failed to delete record:\n' + error.message);
+    }
+  };
+
   const getColor = (percentage) => {
     if (percentage === undefined || percentage === null || isNaN(percentage)) return '#999';
     const val = parseFloat(percentage);
@@ -346,7 +391,34 @@ function PlayerStatsDetailView({ player, shotType, stats, setStats, onClose, can
                   <td className="made-col"><strong>{totals.made}</strong></td>
                   <td className="attempted-col"><strong>/{totals.attempted}</strong></td>
                   <td className="percent-col" style={{ color: getColor(totalPercentage) }}><strong>{totalPercentage}%</strong></td>
-                  <td className="notes-col">-</td>
+                  <td className="notes-col">
+                    {canEdit && (
+                      <button
+                        onClick={() => deleteRecord(stat.date)}
+                        style={{
+                          background: 'rgba(255, 88, 96, 0.2)',
+                          color: '#FF5860',
+                          border: '1px solid rgba(255, 88, 96, 0.3)',
+                          padding: '0.4rem 0.75rem',
+                          borderRadius: '0.35rem',
+                          cursor: 'pointer',
+                          fontSize: '0.85rem',
+                          fontWeight: '600',
+                          transition: 'all 200ms ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.background = 'rgba(255, 88, 96, 0.3)';
+                          e.target.style.boxShadow = '0 0 10px rgba(255, 88, 96, 0.3)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.background = 'rgba(255, 88, 96, 0.2)';
+                          e.target.style.boxShadow = 'none';
+                        }}
+                      >
+                        🗑️ Delete
+                      </button>
+                    )}
+                  </td>
                 </tr>
               );
             })}
