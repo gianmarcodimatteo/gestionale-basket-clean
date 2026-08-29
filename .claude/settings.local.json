@@ -112,7 +112,11 @@
       "Bash(grep -E \"\\\\.css$\")",
       "Bash(curl -s \"https://whale-app-rw3dr.ondigitalocean.app/api/staff\" -H \"Authorization: Bearer test\")",
       "Bash(grep -E \"\\\\.\\(jsx|js\\)$\")",
-      "Bash(/tmp/run-gestionale-full.sh)"
+      "Bash(/tmp/run-gestionale-full.sh)",
+      "Bash(git remote *)",
+      "Bash(ls -la ~/.ssh/ 2>/dev/null | grep -E \"id_rsa|id_ed25519\" || echo \"Nessuna SSH key trovata\")",
+      "Bash(git config *)",
+      "Bash(./node_modules/.bin/prisma migrate *)"
     ]
   }
 }

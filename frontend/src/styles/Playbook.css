@@ -458,3 +458,40 @@
     padding: 1.5rem;
   }
 }
+
+@media (max-width: 480px) {
+  .playbook-header {
+    gap: 1rem;
+  }
+
+  .playbook-tabs {
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    flex: 1;
+    min-width: 140px;
+    font-size: 0.85rem;
+    padding: 0.5rem;
+  }
+
+  .playbook-card,
+  .playbook-grid {
+    gap: 0.5rem;
+  }
+
+  .modal-content {
+    width: 98%;
+    padding: 1rem;
+    max-height: 90vh;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  input, textarea, select {
+    font-size: 16px;
+  }
+}

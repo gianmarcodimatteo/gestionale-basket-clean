@@ -382,3 +382,38 @@
     padding: 1.5rem;
   }
 }
+
+@media (max-width: 480px) {
+  .trainings-header {
+    gap: 0.5rem;
+    flex-direction: column;
+  }
+
+  .btn-add-training {
+    width: 100%;
+    font-size: 0.85rem;
+    padding: 0.5rem;
+  }
+
+  .training-card {
+    gap: 0.5rem;
+  }
+
+  .training-info {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .training-description {
+    font-size: 0.85rem;
+  }
+
+  .modal-content {
+    width: 98%;
+    padding: 1rem;
+  }
+
+  input, textarea, select {
+    font-size: 16px;
+  }
+}
