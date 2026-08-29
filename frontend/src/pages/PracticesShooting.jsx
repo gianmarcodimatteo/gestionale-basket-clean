@@ -392,7 +392,7 @@ function PlayerStatsDetailView({ player, shotType, stats, setStats, onClose, can
                   <td className="attempted-col"><strong>/{totals.attempted}</strong></td>
                   <td className="percent-col" style={{ color: getColor(totalPercentage) }}><strong>{totalPercentage}%</strong></td>
                   <td className="notes-col">
-                    {canEdit && (
+                    {canEdit && stat.id && (
                       <button
                         onClick={() => deleteRecord(stat.date)}
                         style={{
