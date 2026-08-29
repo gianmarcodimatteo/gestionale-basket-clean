@@ -27,11 +27,14 @@ export default function PracticesShooting() {
   const loadPlayers = async () => {
     try {
       setLoading(true);
+      console.log('🏀 PracticesShooting: Starting to load players and stats...');
+
       const token = localStorage.getItem('token');
       const response = await fetch('/api/roster?limit=100', {
         headers: { Authorization: `Bearer ${token}` },
       });
       const result = await response.json();
+      console.log('✅ Loaded players:', result.data?.length || 0);
       setPlayers(result.data || []);
 
       // Load stats from API for all players
@@ -45,11 +48,13 @@ export default function PracticesShooting() {
           });
 
           if (!statsResponse.ok) {
-            console.warn(`API returned ${statsResponse.status} for player ${player.id}`);
+            console.warn(`⚠️ API returned ${statsResponse.status} for player ${player.id}`);
             continue;
           }
 
           const statsResult = await statsResponse.json();
+          console.log(`📊 Stats for player ${player.id}:`, statsResult.data?.length || 0, 'records');
+
           if (statsResult.success && statsResult.data && statsResult.data.length > 0) {
             hasApiData = true;
             statsResult.data.forEach(stat => {
@@ -66,25 +71,29 @@ export default function PracticesShooting() {
             });
           }
         } catch (err) {
-          console.error(`Error loading stats for player ${player.id}:`, err);
+          console.error(`❌ Error loading stats for player ${player.id}:`, err);
         }
       }
 
       // Fallback to localStorage if API has no data
       if (!hasApiData) {
-        console.log('No API data found, loading from localStorage');
+        console.log('📱 No API data found, loading from localStorage');
         const savedStats = JSON.parse(localStorage.getItem('shootingStats') || '{}');
+        console.log('💾 localStorage stats:', Object.keys(savedStats).length, 'entries');
         Object.assign(allStats, savedStats);
       }
 
+      console.log('✅ Final stats object:', Object.keys(allStats).length, 'keys');
       setStats(allStats);
     } catch (error) {
-      console.error('Error loading players:', error);
+      console.error('❌ Error loading players:', error);
       // Final fallback to localStorage on any error
       const savedStats = JSON.parse(localStorage.getItem('shootingStats') || '{}');
+      console.log('💾 Fallback from localStorage:', Object.keys(savedStats).length, 'entries');
       setStats(savedStats);
     } finally {
       setLoading(false);
+      console.log('✅ Page render complete');
     }
   };
 
