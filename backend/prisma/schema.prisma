@@ -399,6 +399,21 @@ model Playbook {
   @@index([name], map: "playbook_name_idx")
 }
 
+// ============= DAILY REPORT =============
+model DailyReport {
+  id            String   @id @default(cuid())
+  date          DateTime // Date of the report
+  coaching      Json     // { pre: string, post: string }
+  strength      Json     // { pre: string, post: string }
+  medical       Json     // { pre: string, post: string }
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  updatedBy     String?
+
+  @@unique([date], name: "daily_report_date_unique")
+  @@index([date])
+}
+
 // ============= SCOUTING =============
 model ScoutingReport {
   id            String   @id @default(cuid())
