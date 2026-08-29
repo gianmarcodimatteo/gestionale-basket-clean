@@ -5,6 +5,7 @@ import {
   createShootingStats,
   updateShootingStats,
   deleteShootingStats,
+  deleteAllShootingStats,
 } from '../controllers/shootingStatsController.js';
 
 const router = express.Router();
@@ -21,5 +22,6 @@ router.get('/', verifyToken, getShootingStats);
 router.post('/', verifyToken, checkEditPermission, createShootingStats);
 router.put('/:id', verifyToken, checkEditPermission, updateShootingStats);
 router.delete('/:id', verifyToken, checkEditPermission, deleteShootingStats);
+router.delete('/all/records', verifyToken, checkEditPermission, deleteAllShootingStats);
 
 export default router;

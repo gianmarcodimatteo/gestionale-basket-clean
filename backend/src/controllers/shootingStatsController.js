@@ -98,3 +98,14 @@ export async function deleteShootingStats(req, res) {
     res.status(500).json({ success: false, error: error.message });
   }
 }
+
+export async function deleteAllShootingStats(req, res) {
+  try {
+    const result = await prisma.practicesShootingStats.deleteMany({});
+
+    res.json({ success: true, message: `Deleted ${result.count} shooting stats records`, count: result.count });
+  } catch (error) {
+    console.error('Error deleting all shooting stats:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+}
