@@ -196,6 +196,8 @@ function PlayerStatsDetailView({ player, shotType, stats, setStats, onClose, can
         rtCorA: parseInt(newZoneData.RT_COR.attempted) || 0,
       };
 
+      console.log('📤 Saving to API:', apiPayload);
+
       const response = await fetch('/api/shooting-stats', {
         method: 'POST',
         headers: {
@@ -205,7 +207,15 @@ function PlayerStatsDetailView({ player, shotType, stats, setStats, onClose, can
         body: JSON.stringify(apiPayload),
       });
 
-      if (!response.ok) throw new Error('Failed to save stats');
+      console.log('📨 API Response:', response.status, response.statusText);
+      const responseData = await response.json();
+      console.log('📨 API Response Data:', responseData);
+
+      if (!response.ok) {
+        throw new Error(`API Error ${response.status}: ${responseData.error || 'Failed to save stats'}`);
+      }
+
+      console.log('✅ Successfully saved to API!');
 
       // Update local state
       const key = `${player.id}-${shotType}`;
@@ -224,9 +234,10 @@ function PlayerStatsDetailView({ player, shotType, stats, setStats, onClose, can
       loadDailyStats();
       setNewDate(new Date().toISOString().split('T')[0]);
       setNewZoneData(SHOOTING_ZONES.reduce((acc, zone) => ({ ...acc, [zone.id]: { made: '', attempted: '' } }), {}));
+      alert('✅ Stats saved successfully!');
     } catch (error) {
-      console.error('Error saving shooting stats:', error);
-      alert('Failed to save shooting stats');
+      console.error('❌ Error saving shooting stats:', error);
+      alert('❌ Failed to save shooting stats:\n' + error.message);
     }
   };
 
