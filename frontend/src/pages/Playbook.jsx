@@ -22,6 +22,7 @@ export default function PlaybookPage() {
     side: 'Offensive',
     notes: '',
     file: null,
+    folder: 'PDF',
   });
 
   const userRole = JSON.parse(localStorage.getItem('user') || '{}').role;
@@ -49,12 +50,17 @@ export default function PlaybookPage() {
       setIsUploading(true);
       setUploadProgress(0);
 
+      const payload = {
+        ...formData,
+        fileType: formData.folder
+      };
+
       if (selectedPlaybook) {
-        await updatePlaybook(selectedPlaybook.id, formData, (progress) => {
+        await updatePlaybook(selectedPlaybook.id, payload, (progress) => {
           setUploadProgress(progress);
         });
       } else {
-        await createPlaybook(formData, (progress) => {
+        await createPlaybook(payload, (progress) => {
           setUploadProgress(progress);
         });
       }
@@ -135,6 +141,7 @@ export default function PlaybookPage() {
       tags: playbook.tags ? JSON.parse(playbook.tags) : [],
       notes: playbook.notes || '',
       file: null,
+      folder: playbook.fileType || 'PDF',
     });
     setIsModalOpen(true);
   };
@@ -188,61 +195,151 @@ export default function PlaybookPage() {
           📋 No plays yet. {canEdit && 'Create one to get started!'}
         </div>
       ) : (
-        <div className="playbook-grid">
-          {filteredPlaybooks.map(playbook => (
-            <div key={playbook.id} className="playbook-card">
-              <div className="playbook-header-card">
-                <h3>{playbook.name}</h3>
-                {canEdit && (
-                  <div className="playbook-actions">
-                    <button onClick={() => handleEdit(playbook)} className="action-btn edit">
-                      <Edit size={18} />
-                    </button>
-                    <button onClick={() => handleDelete(playbook.id)} className="action-btn delete">
-                      <Trash2 size={18} />
-                    </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          {['PDF', 'Video'].map(folder => {
+            const folderPlaybooks = filteredPlaybooks
+              .filter(p => (p.fileType || 'PDF') === folder)
+              .sort((a, b) => a.name.localeCompare(b.name));
+
+            return (
+              <div key={folder}>
+                <h2 style={{
+                  marginBottom: '1rem',
+                  fontSize: '1.3rem',
+                  color: folder === 'PDF' ? '#00D9FF' : '#7FFF00',
+                  borderBottom: `2px solid ${folder === 'PDF' ? 'rgba(0, 217, 255, 0.3)' : 'rgba(127, 255, 0, 0.3)'}`,
+                  paddingBottom: '0.5rem'
+                }}>
+                  {folder === 'PDF' ? '📄' : '🎥'} {folder}s ({folderPlaybooks.length})
+                </h2>
+
+                {folderPlaybooks.length === 0 ? (
+                  <div style={{ color: '#cbd5e1', fontStyle: 'italic', padding: '1rem' }}>
+                    No {folder.toLowerCase()}s in this category
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {folderPlaybooks.map(playbook => (
+                      <div
+                        key={playbook.id}
+                        style={{
+                          padding: '1rem',
+                          background: 'rgba(0, 217, 255, 0.05)',
+                          border: '1px solid rgba(0, 217, 255, 0.2)',
+                          borderRadius: '0.35rem',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          gap: '1rem'
+                        }}
+                      >
+                        <div style={{ flex: 1 }}>
+                          <h4 style={{ margin: '0 0 0.25rem 0', color: '#00D9FF' }}>{playbook.name}</h4>
+                          {playbook.description && (
+                            <p style={{ margin: '0', fontSize: '0.85rem', color: '#cbd5e1' }}>
+                              {playbook.description}
+                            </p>
+                          )}
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                          {playbook.fileType === 'Video' && (
+                            <button
+                              onClick={() => handleViewVideo(playbook.fileUrl)}
+                              style={{
+                                background: 'none',
+                                border: '1px solid rgba(0, 217, 255, 0.3)',
+                                color: '#00D9FF',
+                                padding: '0.5rem 0.75rem',
+                                borderRadius: '0.25rem',
+                                cursor: 'pointer',
+                                fontSize: '0.8rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem'
+                              }}
+                            >
+                              <Video size={14} /> Play
+                            </button>
+                          )}
+                          {playbook.fileType === 'PDF' && (
+                            <button
+                              onClick={() => handleViewPdf(playbook.fileUrl)}
+                              style={{
+                                background: 'none',
+                                border: '1px solid rgba(0, 217, 255, 0.3)',
+                                color: '#00D9FF',
+                                padding: '0.5rem 0.75rem',
+                                borderRadius: '0.25rem',
+                                cursor: 'pointer',
+                                fontSize: '0.8rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem'
+                              }}
+                            >
+                              <FileText size={14} /> View
+                            </button>
+                          )}
+                          {canEdit && (
+                            <>
+                              <a
+                                href={getAuthenticatedFileUrl(playbook.fileUrl)}
+                                download
+                                style={{
+                                  background: 'none',
+                                  border: '1px solid rgba(0, 217, 255, 0.3)',
+                                  color: '#00D9FF',
+                                  padding: '0.5rem 0.75rem',
+                                  borderRadius: '0.25rem',
+                                  cursor: 'pointer',
+                                  fontSize: '0.8rem',
+                                  textDecoration: 'none',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '0.25rem'
+                                }}
+                              >
+                                ⬇️ DL
+                              </a>
+                              <button
+                                onClick={() => handleEdit(playbook)}
+                                style={{
+                                  background: 'none',
+                                  border: '1px solid rgba(0, 217, 255, 0.3)',
+                                  color: '#00D9FF',
+                                  padding: '0.5rem 0.75rem',
+                                  borderRadius: '0.25rem',
+                                  cursor: 'pointer',
+                                  fontSize: '0.8rem'
+                                }}
+                              >
+                                <Edit size={14} />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(playbook.id)}
+                                style={{
+                                  background: 'none',
+                                  border: '1px solid #EF4444',
+                                  color: '#EF4444',
+                                  padding: '0.5rem 0.75rem',
+                                  borderRadius: '0.25rem',
+                                  cursor: 'pointer',
+                                  fontSize: '0.8rem'
+                                }}
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
-
-              {playbook.description && (
-                <p className="playbook-description">{playbook.description}</p>
-              )}
-
-              <div className="playbook-file" style={{ display: 'flex', gap: '1rem' }}>
-                {playbook.fileType === 'Video' && (
-                  <button
-                    onClick={() => handleViewVideo(playbook.fileUrl)}
-                    className="file-link"
-                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
-                  >
-                    <Video size={18} /> Watch Video
-                  </button>
-                )}
-                {playbook.fileType === 'PDF' && (
-                  <button
-                    onClick={() => handleViewPdf(playbook.fileUrl)}
-                    className="file-link"
-                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
-                  >
-                    <FileText size={18} /> View PDF
-                  </button>
-                )}
-                {canEdit && (
-                  <a href={getAuthenticatedFileUrl(playbook.fileUrl)} download className="file-link">
-                    <FileText size={18} /> Download
-                  </a>
-                )}
-              </div>
-
-
-              {playbook.notes && (
-                <div className="playbook-notes">
-                  <small>{playbook.notes}</small>
-                </div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -255,6 +352,18 @@ export default function PlaybookPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="playbook-form">
+              <div className="form-group">
+                <label>Folder *</label>
+                <select
+                  value={formData.folder}
+                  onChange={e => setFormData({ ...formData, folder: e.target.value })}
+                  required
+                >
+                  <option value="PDF">📄 PDF</option>
+                  <option value="Video">🎥 Video</option>
+                </select>
+              </div>
+
               <div className="form-group">
                 <label>Title *</label>
                 <input
