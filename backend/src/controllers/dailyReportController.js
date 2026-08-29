@@ -48,25 +48,44 @@ export async function saveDailyReport(req, res) {
     // Parse date
     const reportDate = new Date(date);
     reportDate.setUTCHours(0, 0, 0, 0);
+    const nextDay = new Date(reportDate);
+    nextDay.setUTCDate(nextDay.getUTCDate() + 1);
 
     const data = {
-      date: reportDate,
       coaching: coaching || { pre: '', post: '' },
       strength: strength || { pre: '', post: '' },
       medical: medical || { pre: '', post: '' },
       updatedBy: req.user?.id,
     };
 
-    // Upsert: update if exists, create if not
-    const result = await prisma.dailyReport.upsert({
+    // Find existing report for this date
+    const existingReport = await prisma.dailyReport.findFirst({
       where: {
-        date: reportDate,
+        date: {
+          gte: reportDate,
+          lt: nextDay,
+        },
       },
-      update: data,
-      create: data,
     });
 
-    console.log('✅ Daily report saved successfully');
+    // Update or create
+    let result;
+    if (existingReport) {
+      result = await prisma.dailyReport.update({
+        where: { id: existingReport.id },
+        data,
+      });
+      console.log('✅ Daily report updated successfully');
+    } else {
+      result = await prisma.dailyReport.create({
+        data: {
+          ...data,
+          date: reportDate,
+        },
+      });
+      console.log('✅ Daily report created successfully');
+    }
+
     res.status(201).json({ data: result });
   } catch (error) {
     console.error('❌ Error saving daily report:', error);
