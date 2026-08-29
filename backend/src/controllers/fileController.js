@@ -35,7 +35,7 @@ export const getFileStream = async (req, res) => {
     const response = await spacesClient.send(command);
 
     res.setHeader('Content-Type', response.ContentType || 'application/octet-stream');
-    res.setHeader('Content-Disposition', `inline; filename="${fileId}"`);
+    res.setHeader('Content-Disposition', `attachment; filename="${fileId}"`);
 
     response.Body.pipe(res);
   } catch (error) {

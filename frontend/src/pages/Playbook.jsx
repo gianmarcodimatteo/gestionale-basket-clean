@@ -285,7 +285,7 @@ export default function PlaybookPage() {
                             <>
                               <a
                                 href={getAuthenticatedFileUrl(playbook.fileUrl)}
-                                download
+                                download={playbook.fileUrl?.split('/').pop() || 'download'}
                                 style={{
                                   background: 'none',
                                   border: '1px solid rgba(0, 217, 255, 0.3)',
