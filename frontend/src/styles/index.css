@@ -24,6 +24,12 @@ body {
   overflow: hidden;
 }
 
+@media (max-width: 768px) {
+  .page-container {
+    overflow: visible;
+  }
+}
+
 /* ===== TABLE RESPONSIVITY ===== */
 table {
   width: 100%;
