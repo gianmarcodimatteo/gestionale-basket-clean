@@ -36,17 +36,27 @@ export default function PracticesShooting() {
 
       // Load stats from API for all players
       const allStats = {};
+      let hasApiData = false;
+
       for (const player of (result.data || [])) {
         try {
           const statsResponse = await fetch(`/api/shooting-stats?rosterId=${player.id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
+
+          if (!statsResponse.ok) {
+            console.warn(`API returned ${statsResponse.status} for player ${player.id}`);
+            continue;
+          }
+
           const statsResult = await statsResponse.json();
-          if (statsResult.data) {
+          if (statsResult.success && statsResult.data && statsResult.data.length > 0) {
+            hasApiData = true;
             statsResult.data.forEach(stat => {
               const key = `${player.id}-${stat.shotType || '2PTS'}`;
               if (!allStats[key]) allStats[key] = {};
-              allStats[key][stat.date?.split('T')[0] || stat.date] = {
+              const dateKey = stat.date ? new Date(stat.date).toISOString().split('T')[0] : stat.date;
+              allStats[key][dateKey] = {
                 LH_COR: { made: stat.lhCorM || 0, attempted: stat.lhCorA || 0 },
                 LH_WG: { made: stat.lhWgM || 0, attempted: stat.lhWgA || 0 },
                 TOP: { made: stat.topM || 0, attempted: stat.topA || 0 },
@@ -59,9 +69,20 @@ export default function PracticesShooting() {
           console.error(`Error loading stats for player ${player.id}:`, err);
         }
       }
+
+      // Fallback to localStorage if API has no data
+      if (!hasApiData) {
+        console.log('No API data found, loading from localStorage');
+        const savedStats = JSON.parse(localStorage.getItem('shootingStats') || '{}');
+        Object.assign(allStats, savedStats);
+      }
+
       setStats(allStats);
     } catch (error) {
       console.error('Error loading players:', error);
+      // Final fallback to localStorage on any error
+      const savedStats = JSON.parse(localStorage.getItem('shootingStats') || '{}');
+      setStats(savedStats);
     } finally {
       setLoading(false);
     }
