@@ -523,7 +523,7 @@
     flex: 1;
     min-width: auto;
     text-align: center;
-    font-size: 0.6rem;
+    font-size: 0.75rem;
     align-items: center;
     justify-content: center;
     white-space: nowrap;
@@ -531,7 +531,7 @@
   }
 
   .nav-label {
-    font-size: 0.6rem;
+    font-size: 0.75rem;
     white-space: nowrap;
     display: block;
   }
@@ -565,7 +565,7 @@
   /* Footer */
   .footer {
     padding: var(--spacing-sm) var(--spacing-md);
-    font-size: 0.65rem;
+    font-size: 0.75rem;
   }
 
   .footer p {
