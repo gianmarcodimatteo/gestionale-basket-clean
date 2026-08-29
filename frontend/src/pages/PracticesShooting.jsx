@@ -225,7 +225,7 @@ function PlayerStatsDetailView({ player, shotType, stats, setStats, onClose, can
       const savedRecord = responseData.data;
       stats[key][newDate] = {
         id: savedRecord.id,
-        ...SHOOTING_ZONES.reduce((acc, zone) => ({
+        zones: SHOOTING_ZONES.reduce((acc, zone) => ({
           ...acc,
           [zone.id]: {
             made: parseInt(newZoneData[zone.id].made) || 0,
@@ -234,7 +234,7 @@ function PlayerStatsDetailView({ player, shotType, stats, setStats, onClose, can
         }), {})
       };
 
-      console.log('📝 Updated local stats with ID:', savedRecord.id);
+      console.log('📝 Updated local stats with ID:', savedRecord.id, 'and zones:', stats[key][newDate].zones);
       setStats({ ...stats });
       localStorage.setItem('shootingStats', JSON.stringify(stats));
       loadDailyStats();
