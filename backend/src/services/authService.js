@@ -32,6 +32,7 @@ export const findOrCreateUser = async (googleProfile) => {
         data: {
           name: googleProfile.displayName,
           picture: googleProfile.photos?.[0]?.value,
+          lastLogin: new Date(),
         },
       });
     } else {
@@ -43,6 +44,7 @@ export const findOrCreateUser = async (googleProfile) => {
           name: googleProfile.displayName,
           picture: googleProfile.photos?.[0]?.value,
           role: 'USER', // Default role
+          lastLogin: new Date(),
         },
       });
     }
@@ -140,6 +142,12 @@ export const loginUser = async (email, password) => {
     if (!isPasswordValid) {
       throw new Error('Invalid email or password');
     }
+
+    // Aggiorna lastLogin
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLogin: new Date() },
+    });
 
     return user;
   } catch (error) {

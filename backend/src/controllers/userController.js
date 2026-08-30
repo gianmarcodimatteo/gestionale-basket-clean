@@ -12,6 +12,7 @@ export const getAllUsers = async (req, res) => {
         name: true,
         role: true,
         createdAt: true,
+        lastLogin: true,
       },
       orderBy: { createdAt: 'desc' },
     });

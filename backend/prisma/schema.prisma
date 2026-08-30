@@ -21,6 +21,7 @@ model User {
   role          String   @default("USER") // ADMIN, COACH, ASSISTANT, STAFF, USER, GIOCATRICE
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  lastLogin     DateTime?  // Ultimo accesso dell'utente
 
   staff         Staff?
   trainingSessions TrainingSession[]

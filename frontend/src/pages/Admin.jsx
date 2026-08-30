@@ -175,6 +175,7 @@ export default function Admin() {
                 <th style={{ padding: '1rem', textAlign: 'left', color: '#cbd5e1', fontWeight: '600' }}>Nome</th>
                 <th style={{ padding: '1rem', textAlign: 'left', color: '#cbd5e1', fontWeight: '600' }}>Ruolo</th>
                 <th style={{ padding: '1rem', textAlign: 'left', color: '#cbd5e1', fontWeight: '600' }}>Data Registrazione</th>
+                <th style={{ padding: '1rem', textAlign: 'left', color: '#cbd5e1', fontWeight: '600' }}>Ultimo Accesso</th>
                 <th style={{ padding: '1rem', textAlign: 'center', color: '#cbd5e1', fontWeight: '600' }}>Azioni</th>
               </tr>
             </thead>
@@ -204,6 +205,17 @@ export default function Admin() {
                   </td>
                   <td style={{ padding: '1rem', color: '#cbd5e1', fontSize: '0.875rem' }}>
                     {new Date(user.createdAt).toLocaleDateString('it-IT')}
+                  </td>
+                  <td style={{ padding: '1rem', color: '#cbd5e1', fontSize: '0.875rem' }}>
+                    {user.lastLogin
+                      ? new Date(user.lastLogin).toLocaleDateString('it-IT', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })
+                      : 'Mai'}
                   </td>
                   <td style={{ padding: '1rem', textAlign: 'center' }}>
                     <button
