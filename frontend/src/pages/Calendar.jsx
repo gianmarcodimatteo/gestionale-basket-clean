@@ -173,7 +173,7 @@ export default function CalendarPage() {
         const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
         return events.filter(e => {
           const eventDate = new Date(e.start);
-          return eventDate >= weekStart && eventDate < weekEnd;
+          return eventDate >= weekStart && eventDate <= weekEnd;
         });
       }
       case 'month': {
