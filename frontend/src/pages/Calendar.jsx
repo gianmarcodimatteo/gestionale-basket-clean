@@ -106,8 +106,10 @@ export default function CalendarPage() {
   const loadEvents = async () => {
     try {
       setLoading(true);
-      const start = startOfMonth(currentDate);
-      const end = endOfMonth(currentDate);
+      // Load events for current month + adjacent months to handle week boundaries
+      const monthStart = startOfMonth(currentDate);
+      const start = new Date(monthStart.getFullYear(), monthStart.getMonth() - 1, 1);
+      const end = new Date(monthStart.getFullYear(), monthStart.getMonth() + 2, 0);
       const result = await getEvents(start, end);
       const formattedEvents = result.data.map(e => ({
         ...e,
