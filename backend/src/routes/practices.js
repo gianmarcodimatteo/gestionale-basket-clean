@@ -30,7 +30,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 500 * 1024 * 1024 }, // 500MB
+  limits: { fileSize: 1024 * 1024 * 1024 }, // 1GB
 });
 
 // Middleware to upload to Spaces

@@ -36,6 +36,13 @@ const app = express();
 const PORT = 5000;
 
 // ============= MIDDLEWARE =============
+// Increase timeout for large file uploads (10 minutes)
+app.use((req, res, next) => {
+  req.setTimeout(600000); // 10 minutes for request
+  res.setTimeout(600000); // 10 minutes for response
+  next();
+});
+
 app.use(cors({
   origin: [
     process.env.FRONTEND_URL || 'http://localhost:3001',
@@ -51,7 +58,7 @@ app.use(cors({
 // Only parse JSON if content-type is explicitly JSON
 app.use((req, res, next) => {
   if (req.is('json')) {
-    return express.json()(req, res, next);
+    return express.json({ limit: '50mb' })(req, res, next);
   }
   next();
 });
@@ -59,7 +66,7 @@ app.use((req, res, next) => {
 // Only parse urlencoded if not multipart/form-data
 app.use((req, res, next) => {
   if (req.is('urlencoded')) {
-    return express.urlencoded({ extended: true })(req, res, next);
+    return express.urlencoded({ extended: true, limit: '50mb' })(req, res, next);
   }
   next();
 });
