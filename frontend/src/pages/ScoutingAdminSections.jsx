@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Download, FileText, Video } from 'lucide-react';
 import { getScoutingReports, deleteScoutingReport } from '../services/scoutingService.js';
 import { getAuthenticatedFileUrl } from '../utils/fileUrl.js';
+import { uploadWithProgress } from '../utils/uploadWithProgress.js';
 import '../styles/Scouting.css';
 
 export default function ScoutingAdminPage() {
@@ -13,6 +14,8 @@ export default function ScoutingAdminPage() {
   const [pdfSrc, setPdfSrc] = useState('');
   const [videoViewerOpen, setVideoViewerOpen] = useState(false);
   const [videoSrc, setVideoSrc] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
   const userRole = JSON.parse(localStorage.getItem('user') || '{}').role;
   const canEdit = ['ADMIN', 'EDITOR'].includes(userRole);
@@ -40,24 +43,28 @@ export default function ScoutingAdminPage() {
     if (!file || !selectedReportId) return;
 
     try {
+      setIsUploading(true);
+      setUploadProgress(0);
+
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('/api/scouting/' + selectedReportId, {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        body: formData,
-      });
+      const response = await uploadWithProgress(
+        `/api/scouting/${selectedReportId}`,
+        formData,
+        'PUT',
+        (progress) => setUploadProgress(progress)
+      );
 
-      if (response.ok) {
-        setFile(null);
-        loadReports();
-        alert('✓ File uploaded successfully!');
-      } else {
-        alert('Upload failed. Please try again.');
-      }
+      setFile(null);
+      setIsUploading(false);
+      setUploadProgress(0);
+      loadReports();
+      alert('✓ File uploaded successfully!');
     } catch (error) {
       console.error('Error uploading:', error);
+      setIsUploading(false);
+      setUploadProgress(0);
       alert('Error uploading file');
     }
   };
@@ -276,6 +283,30 @@ export default function ScoutingAdminPage() {
                 <p style={{ color: '#7FFF00', marginTop: '0.5rem', fontSize: '0.875rem' }}>
                   ✓ {file.name}
                 </p>
+              )}
+
+              {isUploading && (
+                <div style={{ marginTop: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                    <span style={{ color: '#cbd5e1', fontSize: '0.875rem', fontWeight: '600' }}>Uploading...</span>
+                    <span style={{ color: '#00D9FF', fontSize: '0.875rem', fontWeight: '600' }}>{uploadProgress}%</span>
+                  </div>
+                  <div style={{
+                    width: '100%',
+                    height: '8px',
+                    background: 'rgba(0, 217, 255, 0.1)',
+                    borderRadius: '4px',
+                    overflow: 'hidden',
+                    border: '1px solid rgba(0, 217, 255, 0.2)',
+                  }}>
+                    <div style={{
+                      width: `${uploadProgress}%`,
+                      height: '100%',
+                      background: 'linear-gradient(90deg, #00D9FF, #00FFA3)',
+                      transition: 'width 0.3s ease',
+                    }} />
+                  </div>
+                </div>
               )}
             </form>
           )}
