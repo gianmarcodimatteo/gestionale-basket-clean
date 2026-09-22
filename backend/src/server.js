@@ -36,12 +36,21 @@ const app = express();
 const PORT = 5000;
 
 // ============= MIDDLEWARE =============
-// Increase timeout for large file uploads (10 minutes)
+// Increase timeout for large file uploads and downloads (30 minutes)
 app.use((req, res, next) => {
-  req.setTimeout(600000); // 10 minutes for request
-  res.setTimeout(600000); // 10 minutes for response
+  req.setTimeout(1800000); // 30 minutes for request
+  res.setTimeout(1800000); // 30 minutes for response
   next();
 });
+
+// Additional timeout for the server socket
+app.listen = (function() {
+  return function() {
+    const server = require('http').Server.prototype.listen.apply(this, arguments);
+    server.setTimeout(1800000); // 30 minutes
+    return server;
+  };
+}();
 
 app.use(cors({
   origin: [

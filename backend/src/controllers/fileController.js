@@ -34,12 +34,30 @@ export const getFileStream = async (req, res) => {
     const command = new GetObjectCommand(params);
     const response = await spacesClient.send(command);
 
+    // Set longer timeout for streaming
+    req.setTimeout(1800000); // 30 minutes
+    res.setTimeout(1800000); // 30 minutes
+
     res.setHeader('Content-Type', response.ContentType || 'application/octet-stream');
     res.setHeader('Content-Disposition', `attachment; filename="${fileId}"`);
+    res.setHeader('Content-Length', response.ContentLength);
 
     response.Body.pipe(res);
+
+    response.Body.on('error', (error) => {
+      console.error('Stream error:', error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Stream error' });
+      }
+    });
+
+    res.on('error', (error) => {
+      console.error('Response error:', error);
+    });
   } catch (error) {
     console.error('Error streaming file:', error);
-    res.status(404).json({ error: 'File not found' });
+    if (!res.headersSent) {
+      res.status(404).json({ error: 'File not found' });
+    }
   }
 };
