@@ -223,7 +223,7 @@ export default function ScoutingAdminPage() {
                 }
               }}
             >
-              {report.opponent} • {new Date(report.matchDate || report.createdAt).toLocaleDateString()}
+              {report.opponent}
             </button>
           ))}
         </div>
