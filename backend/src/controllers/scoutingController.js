@@ -23,6 +23,9 @@ export async function getScoutingReports(req, res) {
         creator: {
           select: { id: true, name: true, email: true },
         },
+        files: {
+          orderBy: { createdAt: 'desc' },
+        },
       },
     });
 
@@ -42,6 +45,9 @@ export async function getScoutingReportById(req, res) {
       include: {
         creator: {
           select: { id: true, name: true, email: true },
+        },
+        files: {
+          orderBy: { createdAt: 'desc' },
         },
       },
     });
@@ -66,21 +72,11 @@ export async function createScoutingReport(req, res) {
       return res.status(400).json({ success: false, error: 'Opponent name is required' });
     }
 
-    let fileUrl = null;
-    let fileType = null;
-    if (req.file) {
-      fileUrl = req.file.location;
-      fileType = path.extname(req.file.originalname).toLowerCase().replace('.', '');
-    }
-
     const report = await prisma.scoutingReport.create({
       data: {
         opponent,
         matchDate: matchDate ? new Date(matchDate) : null,
         content,
-        fileUrl,
-        fileType,
-        fileTitle,
         keyPlayers: keyPlayers ? JSON.stringify(keyPlayers) : null,
         strategy,
         notes,
@@ -91,6 +87,7 @@ export async function createScoutingReport(req, res) {
         creator: {
           select: { id: true, name: true, email: true },
         },
+        files: true,
       },
     });
 
@@ -114,13 +111,22 @@ export async function updateScoutingReport(req, res) {
       strategy,
       notes,
       eventId: eventId || null,
-      fileTitle,
     };
 
+    // If file is uploaded, create a new ScoutingFile record
     if (req.file) {
-      updateData.fileUrl = req.file.location;
-      updateData.fileType = path.extname(req.file.originalname).toLowerCase().replace('.', '');
+      const fileType = path.extname(req.file.originalname).toLowerCase().replace('.', '');
       console.log('✓ File uploaded to Spaces:', req.file.location);
+
+      // Create file record
+      await prisma.scoutingFile.create({
+        data: {
+          fileUrl: req.file.location,
+          fileType,
+          fileTitle: fileTitle || null,
+          reportId: id,
+        },
+      });
     }
 
     const report = await prisma.scoutingReport.update({
@@ -129,6 +135,9 @@ export async function updateScoutingReport(req, res) {
       include: {
         creator: {
           select: { id: true, name: true, email: true },
+        },
+        files: {
+          orderBy: { createdAt: 'desc' },
         },
       },
     });
@@ -165,25 +174,27 @@ export async function deleteScoutingReport(req, res) {
 
 export async function deleteScoutingFile(req, res) {
   try {
-    const { id } = req.params;
+    const { id, fileId } = req.params;
 
-    const report = await prisma.scoutingReport.findUnique({ where: { id } });
-    if (!report) {
-      return res.status(404).json({ success: false, error: 'Scouting report not found' });
+    // Delete specific file by ID
+    if (fileId) {
+      const file = await prisma.scoutingFile.findUnique({ where: { id: fileId } });
+      if (!file) {
+        return res.status(404).json({ success: false, error: 'File not found' });
+      }
+
+      await prisma.scoutingFile.delete({ where: { id: fileId } });
+      res.json({ success: true, message: 'File deleted' });
+    } else {
+      // Legacy: delete all files from report
+      const report = await prisma.scoutingReport.findUnique({ where: { id } });
+      if (!report) {
+        return res.status(404).json({ success: false, error: 'Scouting report not found' });
+      }
+
+      await prisma.scoutingFile.deleteMany({ where: { reportId: id } });
+      res.json({ success: true, message: 'All files deleted' });
     }
-
-    if (report.fileUrl) {
-      const filePath = path.join(process.cwd(), 'uploads', report.fileUrl.replace('/uploads/', ''));
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-
-      // Update report to remove file info, but keep the report
-      await prisma.scoutingReport.update({
-        where: { id },
-        data: { fileUrl: null, fileType: null }
-      });
-    }
-
-    res.json({ success: true, message: 'File deleted' });
   } catch (error) {
     console.error('Error deleting scouting file:', error);
     res.status(500).json({ success: false, error: error.message });

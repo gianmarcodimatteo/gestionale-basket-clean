@@ -75,6 +75,7 @@ router.get('/', verifyToken, getScoutingReports);
 router.get('/:id', verifyToken, getScoutingReportById);
 router.post('/', verifyToken, checkEditPermission, upload.single('file'), uploadToSpacesMiddleware, createScoutingReport);
 router.put('/:id', verifyToken, checkEditPermission, upload.single('file'), uploadToSpacesMiddleware, updateScoutingReport);
+router.delete('/:id/file/:fileId', verifyToken, checkEditPermission, deleteScoutingFile);
 router.delete('/:id/file', verifyToken, checkEditPermission, deleteScoutingFile);
 router.delete('/:id', verifyToken, checkEditPermission, deleteScoutingReport);
 

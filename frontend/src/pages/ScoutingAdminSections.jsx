@@ -72,10 +72,10 @@ export default function ScoutingAdminPage() {
     }
   };
 
-  const handleDeleteFile = async (id) => {
+  const handleDeleteFile = async (reportId, fileId) => {
     if (window.confirm('Delete this file?')) {
       try {
-        const response = await fetch(`/api/scouting/${id}/file`, {
+        const response = await fetch(`/api/scouting/${reportId}/file/${fileId}`, {
           method: 'DELETE',
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
@@ -337,114 +337,126 @@ export default function ScoutingAdminPage() {
 
           {/* Files List */}
           <div>
-            <h3 style={{ color: '#f1f5f9', marginBottom: '1rem' }}>📂 Files</h3>
-            {selectedReport.fileUrl ? (
-              <div style={{
-                background: 'rgba(26, 31, 58, 0.7)',
-                border: '1px solid rgba(0, 217, 255, 0.1)',
-                borderRadius: '0.75rem',
-                padding: '1.5rem',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  {selectedReport.fileType?.includes('video') || ['mp4', 'webm', 'mov', 'avi'].includes(selectedReport.fileType) ? (
-                    <Video size={24} style={{ color: '#00D9FF' }} />
-                  ) : (
-                    <FileText size={24} style={{ color: '#00D9FF' }} />
-                  )}
-                  <div>
-                    {selectedReport.fileTitle && (
-                      <p style={{ color: '#00D9FF', margin: 0, fontWeight: '600', fontSize: '0.95rem' }}>
-                        {selectedReport.fileTitle}
-                      </p>
-                    )}
-                    <p style={{ color: '#f1f5f9', margin: selectedReport.fileTitle ? '0.25rem 0 0 0' : 0, fontWeight: '600' }}>
-                      {selectedReport.fileType?.toUpperCase()}
-                    </p>
-                    <p style={{ color: '#cbd5e1', margin: '0.25rem 0 0 0', fontSize: '0.875rem' }}>
-                      {new Date(selectedReport.createdAt).toLocaleDateString()}
-                    </p>
+            <h3 style={{ color: '#f1f5f9', marginBottom: '1rem' }}>📂 Files ({selectedReport.files?.length || 0})</h3>
+            {selectedReport.files && selectedReport.files.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {selectedReport.files.map((file) => (
+                  <div key={file.id} style={{
+                    background: 'rgba(26, 31, 58, 0.7)',
+                    border: '1px solid rgba(0, 217, 255, 0.1)',
+                    borderRadius: '0.75rem',
+                    padding: '1.5rem',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      {['mp4', 'webm', 'mov', 'avi'].includes(file.fileType?.toLowerCase()) ? (
+                        <Video size={24} style={{ color: '#00D9FF' }} />
+                      ) : (
+                        <FileText size={24} style={{ color: '#00D9FF' }} />
+                      )}
+                      <div>
+                        {file.fileTitle && (
+                          <p style={{ color: '#00D9FF', margin: 0, fontWeight: '600', fontSize: '0.95rem' }}>
+                            {file.fileTitle}
+                          </p>
+                        )}
+                        <p style={{ color: '#f1f5f9', margin: file.fileTitle ? '0.25rem 0 0 0' : 0, fontWeight: '600' }}>
+                          {file.fileType?.toUpperCase()}
+                        </p>
+                        <p style={{ color: '#cbd5e1', margin: '0.25rem 0 0 0', fontSize: '0.875rem' }}>
+                          {new Date(file.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                      {['mp4', 'webm', 'mov', 'avi'].includes(file.fileType?.toLowerCase()) && (
+                        <button
+                          onClick={() => handleViewVideo(file.fileUrl)}
+                          style={{
+                            background: 'rgba(127, 255, 0, 0.2)',
+                            color: '#7FFF00',
+                            padding: '0.75rem 1rem',
+                            border: 'none',
+                            borderRadius: '0.5rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            fontWeight: '600',
+                            fontSize: '0.875rem',
+                          }}
+                        >
+                          <Video size={16} />
+                          Watch
+                        </button>
+                      )}
+                      {file.fileType?.toLowerCase() === 'pdf' && (
+                        <button
+                          onClick={() => handleViewPdf(file.fileUrl)}
+                          style={{
+                            background: 'rgba(127, 255, 0, 0.2)',
+                            color: '#7FFF00',
+                            padding: '0.75rem 1rem',
+                            border: 'none',
+                            borderRadius: '0.5rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            fontWeight: '600',
+                            fontSize: '0.875rem',
+                          }}
+                        >
+                          <FileText size={16} />
+                          View
+                        </button>
+                      )}
+                      <a
+                        href={getAuthenticatedFileUrl(file.fileUrl)}
+                        download
+                        style={{
+                          background: 'rgba(0, 217, 255, 0.2)',
+                          color: '#00D9FF',
+                          padding: '0.75rem 1rem',
+                          borderRadius: '0.5rem',
+                          textDecoration: 'none',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          fontWeight: '600',
+                          fontSize: '0.875rem',
+                        }}
+                      >
+                        <Download size={16} />
+                        Download
+                      </a>
+                      {canEdit && (
+                        <button
+                          onClick={() => handleDeleteFile(selectedReport.id, file.id)}
+                          style={{
+                            background: 'rgba(255, 56, 96, 0.2)',
+                            color: '#FF5860',
+                            padding: '0.75rem 1rem',
+                            border: 'none',
+                            borderRadius: '0.5rem',
+                            cursor: 'pointer',
+                            fontWeight: '600',
+                            fontSize: '0.875rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                          }}
+                        >
+                          <Trash2 size={16} />
+                          Delete
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
-                  {['mp4', 'webm', 'mov', 'avi', 'video'].includes(selectedReport.fileType?.toLowerCase()) && (
-                    <button
-                      onClick={() => handleViewVideo(selectedReport.fileUrl)}
-                      style={{
-                        background: 'rgba(127, 255, 0, 0.2)',
-                        color: '#7FFF00',
-                        padding: '0.75rem 1rem',
-                        border: 'none',
-                        borderRadius: '0.5rem',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        fontWeight: '600',
-                      }}
-                    >
-                      <Video size={16} />
-                      Watch Video
-                    </button>
-                  )}
-                  {selectedReport.fileType?.toLowerCase() === 'pdf' && (
-                    <button
-                      onClick={() => handleViewPdf(selectedReport.fileUrl)}
-                      style={{
-                        background: 'rgba(127, 255, 0, 0.2)',
-                        color: '#7FFF00',
-                        padding: '0.75rem 1rem',
-                        border: 'none',
-                        borderRadius: '0.5rem',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        fontWeight: '600',
-                      }}
-                    >
-                      <FileText size={16} />
-                      View PDF
-                    </button>
-                  )}
-                  <a
-                    href={getAuthenticatedFileUrl(selectedReport.fileUrl)}
-                    download
-                    style={{
-                      background: 'rgba(0, 217, 255, 0.2)',
-                      color: '#00D9FF',
-                      padding: '0.75rem 1rem',
-                      borderRadius: '0.5rem',
-                      textDecoration: 'none',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      fontWeight: '600',
-                    }}
-                  >
-                    <Download size={16} />
-                    Download
-                  </a>
-                  {canEdit && (
-                    <button
-                      onClick={() => handleDeleteFile(selectedReport.id)}
-                      style={{
-                        background: 'rgba(255, 56, 96, 0.2)',
-                        color: '#FF5860',
-                        padding: '0.75rem 1rem',
-                        border: 'none',
-                        borderRadius: '0.5rem',
-                        cursor: 'pointer',
-                        fontWeight: '600',
-                      }}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  )}
-                </div>
+                ))}
               </div>
             ) : (
               <p style={{ color: '#cbd5e1', textAlign: 'center', padding: '2rem' }}>

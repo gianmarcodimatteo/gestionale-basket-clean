@@ -422,9 +422,6 @@ model ScoutingReport {
   date          DateTime @default(now())
   matchDate     DateTime?
   content       String?
-  fileUrl       String?  // Excel, Keynote, PDF, Video, etc.
-  fileType      String?  // xlsx, key, pdf, etc.
-  fileTitle     String?  // Custom title for the uploaded file
   keyPlayers    String?  // JSON array
   strategy      String?
   notes         String?
@@ -435,6 +432,7 @@ model ScoutingReport {
   creatorId     String
   creator       User     @relation(fields: [creatorId], references: [id])
 
+  files         ScoutingFile[]
   scoutingNotes ScoutingNote[]
   playerStats   ScoutingPlayerStats[]
   offensiveBreakdown ScoutingOffensiveBreakdown[]
@@ -447,6 +445,20 @@ model ScoutingReport {
   @@index([opponent])
   @@index([matchDate])
   @@index([eventId])
+}
+
+model ScoutingFile {
+  id            String   @id @default(cuid())
+  fileUrl       String   // Excel, Keynote, PDF, Video, etc.
+  fileType      String   // xlsx, key, pdf, etc.
+  fileTitle     String?  // Custom title for the uploaded file
+
+  reportId      String
+  report        ScoutingReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime @default(now())
+
+  @@index([reportId])
 }
 
 model ScoutingNote {
