@@ -13,8 +13,10 @@ export default function ScoutingAdminPage() {
   const [loading, setLoading] = useState(true);
   const [pdfViewerOpen, setPdfViewerOpen] = useState(false);
   const [pdfSrc, setPdfSrc] = useState('');
+  const [pdfLoading, setPdfLoading] = useState(false);
   const [videoViewerOpen, setVideoViewerOpen] = useState(false);
   const [videoSrc, setVideoSrc] = useState('');
+  const [videoLoading, setVideoLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -117,17 +119,11 @@ export default function ScoutingAdminPage() {
       const urlParts = fileUrl.split('/');
       const folder = urlParts[urlParts.length - 2];
       const filename = urlParts[urlParts.length - 1];
-      const apiUrl = `/api/files/${folder}/${filename}`;
+      const apiUrl = `/api/files/${folder}/${filename}?token=${token}`;
 
-      const response = await fetch(apiUrl, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (!response.ok) throw new Error('Failed to load video');
-
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      setVideoSrc(blobUrl);
+      // Use streaming directly instead of loading blob
+      setVideoSrc(apiUrl);
+      setVideoLoading(true);
       setVideoViewerOpen(true);
     } catch (error) {
       console.error('Error loading video:', error);
@@ -505,15 +501,53 @@ export default function ScoutingAdminPage() {
                 cursor: 'pointer',
               }}>✕</button>
             </div>
-            <video
-              src={videoSrc}
-              controls
-              style={{
-                flex: 1,
-                width: '100%',
-                background: '#000',
-              }}
-            />
+            <div style={{
+              flex: 1,
+              width: '100%',
+              background: '#000',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              {videoLoading && (
+                <div style={{
+                  position: 'absolute',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  zIndex: 1,
+                }}>
+                  <div style={{
+                    width: '50px',
+                    height: '50px',
+                    border: '4px solid rgba(0, 217, 255, 0.2)',
+                    borderTop: '4px solid #00D9FF',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite',
+                  }} />
+                  <span style={{ color: '#00D9FF', fontSize: '0.9rem' }}>Loading video...</span>
+                </div>
+              )}
+              <video
+                src={videoSrc}
+                controls
+                onLoadedData={() => setVideoLoading(false)}
+                onCanPlay={() => setVideoLoading(false)}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  background: '#000',
+                  opacity: videoLoading ? 0.3 : 1,
+                }}
+              />
+              <style>{`
+                @keyframes spin {
+                  to { transform: rotate(360deg); }
+                }
+              `}</style>
+            </div>
           </div>
         </div>
       )}
