@@ -9,6 +9,7 @@ export default function ScoutingAdminPage() {
   const [reports, setReports] = useState([]);
   const [selectedReportId, setSelectedReportId] = useState(null);
   const [file, setFile] = useState(null);
+  const [fileTitle, setFileTitle] = useState('');
   const [loading, setLoading] = useState(true);
   const [pdfViewerOpen, setPdfViewerOpen] = useState(false);
   const [pdfSrc, setPdfSrc] = useState('');
@@ -48,6 +49,7 @@ export default function ScoutingAdminPage() {
 
       const formData = new FormData();
       formData.append('file', file);
+      if (fileTitle) formData.append('fileTitle', fileTitle);
 
       const response = await uploadWithProgress(
         `/api/scouting/${selectedReportId}`,
@@ -57,6 +59,7 @@ export default function ScoutingAdminPage() {
       );
 
       setFile(null);
+      setFileTitle('');
       setIsUploading(false);
       setUploadProgress(0);
       loadReports();
@@ -236,15 +239,16 @@ export default function ScoutingAdminPage() {
           {canEdit && (
             <form onSubmit={handleUpload} style={{ marginBottom: '2rem' }}>
               <div style={{
-                display: 'flex',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
                 gap: '1rem',
-                alignItems: 'flex-end',
                 padding: '1.5rem',
                 background: 'rgba(127, 255, 0, 0.05)',
                 border: '2px dashed rgba(127, 255, 0, 0.3)',
                 borderRadius: '0.75rem',
+                alignItems: 'end',
               }}>
-                <div style={{ flex: 1 }}>
+                <div>
                   <label style={{ color: '#cbd5e1', display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>
                     Upload File
                   </label>
@@ -252,6 +256,25 @@ export default function ScoutingAdminPage() {
                     type="file"
                     onChange={(e) => setFile(e.target.files?.[0] || null)}
                     accept=".xlsx,.xls,.key,.pdf,.mp4,.webm,.mov,.avi"
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      background: 'rgba(0, 217, 255, 0.05)',
+                      border: '1px solid rgba(0, 217, 255, 0.2)',
+                      color: '#f1f5f9',
+                      borderRadius: '0.5rem',
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ color: '#cbd5e1', display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>
+                    File Title (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={fileTitle}
+                    onChange={(e) => setFileTitle(e.target.value)}
+                    placeholder="e.g., Game Analysis, Defensive Strategy..."
                     style={{
                       width: '100%',
                       padding: '0.75rem',
@@ -273,6 +296,7 @@ export default function ScoutingAdminPage() {
                     borderRadius: '0.5rem',
                     cursor: file ? 'pointer' : 'not-allowed',
                     fontWeight: '600',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   <Plus size={18} style={{ display: 'inline', marginRight: '0.5rem' }} />
@@ -331,7 +355,12 @@ export default function ScoutingAdminPage() {
                     <FileText size={24} style={{ color: '#00D9FF' }} />
                   )}
                   <div>
-                    <p style={{ color: '#f1f5f9', margin: 0, fontWeight: '600' }}>
+                    {selectedReport.fileTitle && (
+                      <p style={{ color: '#00D9FF', margin: 0, fontWeight: '600', fontSize: '0.95rem' }}>
+                        {selectedReport.fileTitle}
+                      </p>
+                    )}
+                    <p style={{ color: '#f1f5f9', margin: selectedReport.fileTitle ? '0.25rem 0 0 0' : 0, fontWeight: '600' }}>
                       {selectedReport.fileType?.toUpperCase()}
                     </p>
                     <p style={{ color: '#cbd5e1', margin: '0.25rem 0 0 0', fontSize: '0.875rem' }}>

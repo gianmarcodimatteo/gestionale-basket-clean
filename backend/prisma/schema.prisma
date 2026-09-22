@@ -424,6 +424,7 @@ model ScoutingReport {
   content       String?
   fileUrl       String?  // Excel, Keynote, PDF, Video, etc.
   fileType      String?  // xlsx, key, pdf, etc.
+  fileTitle     String?  // Custom title for the uploaded file
   keyPlayers    String?  // JSON array
   strategy      String?
   notes         String?

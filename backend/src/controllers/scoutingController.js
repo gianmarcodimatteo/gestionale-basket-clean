@@ -59,7 +59,7 @@ export async function getScoutingReportById(req, res) {
 
 export async function createScoutingReport(req, res) {
   try {
-    const { opponent, matchDate, content, keyPlayers, strategy, notes, eventId } = req.body;
+    const { opponent, matchDate, content, keyPlayers, strategy, notes, eventId, fileTitle } = req.body;
     const userId = req.user.id;
 
     if (!opponent) {
@@ -80,6 +80,7 @@ export async function createScoutingReport(req, res) {
         content,
         fileUrl,
         fileType,
+        fileTitle,
         keyPlayers: keyPlayers ? JSON.stringify(keyPlayers) : null,
         strategy,
         notes,
@@ -103,7 +104,7 @@ export async function createScoutingReport(req, res) {
 export async function updateScoutingReport(req, res) {
   try {
     const { id } = req.params;
-    const { opponent, matchDate, content, keyPlayers, strategy, notes, eventId } = req.body;
+    const { opponent, matchDate, content, keyPlayers, strategy, notes, eventId, fileTitle } = req.body;
 
     let updateData = {
       opponent,
@@ -113,6 +114,7 @@ export async function updateScoutingReport(req, res) {
       strategy,
       notes,
       eventId: eventId || null,
+      fileTitle,
     };
 
     if (req.file) {
