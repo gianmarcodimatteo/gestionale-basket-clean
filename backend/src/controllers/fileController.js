@@ -13,12 +13,13 @@ export const getFileStream = async (req, res) => {
       return res.status(401).json({ error: 'Token not provided' });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-      if (err) {
-        console.error('Token verification error:', err);
-        return res.status(403).json({ error: 'Invalid or expired token' });
-      }
-    });
+    // Verify token
+    try {
+      jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      console.error('Token verification error:', err);
+      return res.status(403).json({ error: 'Invalid or expired token' });
+    }
 
     if (!folder || !fileId) {
       return res.status(400).json({ error: 'Missing folder or fileId' });
