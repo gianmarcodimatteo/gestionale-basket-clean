@@ -367,7 +367,7 @@ export default function ScoutingAdminPage() {
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: '0.75rem' }}>
-                      {['mp4', 'webm', 'mov', 'avi'].includes(file.fileType?.toLowerCase()) && (
+                      {(file.fileType?.toLowerCase() === 'video' || ['mp4', 'webm', 'mov', 'avi', 'mkv', 'flv', 'wmv'].includes(file.fileType?.toLowerCase())) && (
                         <button
                           onClick={() => handleViewVideo(file.fileUrl)}
                           style={{
