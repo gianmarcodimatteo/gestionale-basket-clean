@@ -34,13 +34,16 @@ export const getFileStream = async (req, res) => {
     const command = new GetObjectCommand(params);
     const response = await spacesClient.send(command);
 
-    // Set longer timeout for streaming
-    req.setTimeout(1800000); // 30 minutes
-    res.setTimeout(1800000); // 30 minutes
+    // Set longer timeout for streaming (60 minutes)
+    req.setTimeout(3600000);
+    res.setTimeout(3600000);
 
     res.setHeader('Content-Type', response.ContentType || 'application/octet-stream');
     res.setHeader('Content-Disposition', `attachment; filename="${fileId}"`);
     res.setHeader('Content-Length', response.ContentLength);
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('Keep-Alive', 'timeout=300, max=1000');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
 
     response.Body.pipe(res);
 

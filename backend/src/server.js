@@ -36,10 +36,12 @@ const app = express();
 const PORT = 5000;
 
 // ============= MIDDLEWARE =============
-// Increase timeout for large file uploads and downloads (30 minutes)
+// Increase timeout for large file uploads and downloads (60 minutes)
 app.use((req, res, next) => {
-  req.setTimeout(1800000); // 30 minutes for request
-  res.setTimeout(1800000); // 30 minutes for response
+  req.setTimeout(3600000); // 60 minutes for request
+  res.setTimeout(3600000); // 60 minutes for response
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('Keep-Alive', 'timeout=300, max=1000');
   next();
 });
 
@@ -184,5 +186,6 @@ const server = app.listen(PORT, () => {
   console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
 });
 
-// Set socket timeout for long-running downloads/uploads
-server.setTimeout(1800000); // 30 minutes
+// Set socket timeout for long-running downloads/uploads (60 minutes)
+server.setTimeout(3600000); // 60 minutes
+server.keepAliveTimeout = 300000; // 5 minutes keep-alive
