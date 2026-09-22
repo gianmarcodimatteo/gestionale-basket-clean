@@ -113,20 +113,30 @@ export default function ScoutingAdminPage() {
     }
   };
 
-  const handleViewVideo = (fileUrl) => {
+  const handleViewVideo = async (fileUrl) => {
     try {
       const token = localStorage.getItem('token');
       const urlParts = fileUrl.split('/');
       const folder = urlParts[urlParts.length - 2];
       const filename = urlParts[urlParts.length - 1];
-      const apiUrl = `/api/files/${folder}/${filename}?token=${token}`;
+      const apiUrl = `/api/files/${folder}/${filename}`;
 
-      // Open modal immediately, load video in background
-      setVideoSrc(apiUrl);
-      setVideoLoading(false); // Don't show loader
+      setVideoLoading(true);
       setVideoViewerOpen(true);
+
+      const response = await fetch(apiUrl, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!response.ok) throw new Error('Failed to load video');
+
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      setVideoSrc(blobUrl);
+      setVideoLoading(false);
     } catch (error) {
       console.error('Error loading video:', error);
+      setVideoLoading(false);
     }
   };
 
