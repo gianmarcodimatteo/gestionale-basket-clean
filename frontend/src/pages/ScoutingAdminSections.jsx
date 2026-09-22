@@ -1,103 +1,9 @@
-import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Download, FileText, Video } from 'lucide-react';
 import { getScoutingReports, deleteScoutingReport } from '../services/scoutingService.js';
 import { getAuthenticatedFileUrl } from '../utils/fileUrl.js';
 import { uploadWithProgress } from '../utils/uploadWithProgress.js';
 import '../styles/Scouting.css';
-
-// Memoized video player component for instant rendering
-const VideoPlayerModal = memo(({ videoViewerOpen, videoSrc, videoLoading, setVideoViewerOpen, setVideoLoading }) => {
-  if (!videoViewerOpen) return null;
-
-  return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0, 0, 0, 0.8)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 9999,
-    }} onClick={() => setVideoViewerOpen(false)}>
-      <div style={{
-        background: '#1a1f3a',
-        borderRadius: '0.75rem',
-        width: '90%',
-        height: '90%',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-      }} onClick={e => e.stopPropagation()}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '1rem',
-          borderBottom: '1px solid rgba(0, 217, 255, 0.2)',
-        }}>
-          <h3 style={{ margin: 0, color: '#00D9FF' }}>📹 Video Player</h3>
-          <button onClick={() => setVideoViewerOpen(false)} style={{
-            background: 'none',
-            border: 'none',
-            color: '#cbd5e1',
-            fontSize: '1.5rem',
-            cursor: 'pointer',
-          }}>✕</button>
-        </div>
-        <div style={{
-          flex: 1,
-          width: '100%',
-          background: '#000',
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-          {videoLoading && (
-            <div style={{
-              position: 'absolute',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '1rem',
-              zIndex: 1,
-            }}>
-              <div style={{
-                width: '50px',
-                height: '50px',
-                border: '4px solid rgba(0, 217, 255, 0.2)',
-                borderTop: '4px solid #00D9FF',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite',
-              }} />
-              <span style={{ color: '#00D9FF', fontSize: '0.9rem' }}>Loading video...</span>
-            </div>
-          )}
-          <video
-            src={videoSrc}
-            controls
-            onLoadedData={() => setVideoLoading(false)}
-            onCanPlay={() => setVideoLoading(false)}
-            style={{
-              width: '100%',
-              height: '100%',
-              background: '#000',
-              opacity: videoLoading ? 0.3 : 1,
-            }}
-          />
-          <style>{`
-            @keyframes spin {
-              to { transform: rotate(360deg); }
-            }
-          `}</style>
-        </div>
-      </div>
-    </div>
-  );
-});
 
 export default function ScoutingAdminPage() {
   const [reports, setReports] = useState([]);
@@ -207,7 +113,7 @@ export default function ScoutingAdminPage() {
     }
   };
 
-  const handleViewVideo = useCallback((fileUrl) => {
+  const handleViewVideo = (fileUrl) => {
     try {
       const token = localStorage.getItem('token');
       const urlParts = fileUrl.split('/');
@@ -222,7 +128,7 @@ export default function ScoutingAdminPage() {
     } catch (error) {
       console.error('Error loading video:', error);
     }
-  }, []);
+  };
 
   const handleDelete = async (id) => {
     if (window.confirm('Delete this report?')) {
@@ -557,13 +463,94 @@ export default function ScoutingAdminPage() {
         </div>
       )}
 
-      <VideoPlayerModal
-        videoViewerOpen={videoViewerOpen}
-        videoSrc={videoSrc}
-        videoLoading={videoLoading}
-        setVideoViewerOpen={setVideoViewerOpen}
-        setVideoLoading={setVideoLoading}
-      />
+      {videoViewerOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+        }} onClick={() => setVideoViewerOpen(false)}>
+          <div style={{
+            background: '#1a1f3a',
+            borderRadius: '0.75rem',
+            width: '90%',
+            height: '90%',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '1rem',
+              borderBottom: '1px solid rgba(0, 217, 255, 0.2)',
+            }}>
+              <h3 style={{ margin: 0, color: '#00D9FF' }}>📹 Video Player</h3>
+              <button onClick={() => setVideoViewerOpen(false)} style={{
+                background: 'none',
+                border: 'none',
+                color: '#cbd5e1',
+                fontSize: '1.5rem',
+                cursor: 'pointer',
+              }}>✕</button>
+            </div>
+            <div style={{
+              flex: 1,
+              width: '100%',
+              background: '#000',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              {videoLoading && (
+                <div style={{
+                  position: 'absolute',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  zIndex: 1,
+                }}>
+                  <div style={{
+                    width: '50px',
+                    height: '50px',
+                    border: '4px solid rgba(0, 217, 255, 0.2)',
+                    borderTop: '4px solid #00D9FF',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite',
+                  }} />
+                  <span style={{ color: '#00D9FF', fontSize: '0.9rem' }}>Loading video...</span>
+                </div>
+              )}
+              <video
+                src={videoSrc}
+                controls
+                onLoadedData={() => setVideoLoading(false)}
+                onCanPlay={() => setVideoLoading(false)}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  background: '#000',
+                  opacity: videoLoading ? 0.3 : 1,
+                }}
+              />
+              <style>{`
+                @keyframes spin {
+                  to { transform: rotate(360deg); }
+                }
+              `}</style>
+            </div>
+          </div>
+        </div>
+      )}
 
       {pdfViewerOpen && (
         <div style={{
