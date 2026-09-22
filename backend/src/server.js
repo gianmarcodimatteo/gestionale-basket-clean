@@ -43,15 +43,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Additional timeout for the server socket
-app.listen = (function() {
-  return function() {
-    const server = require('http').Server.prototype.listen.apply(this, arguments);
-    server.setTimeout(1800000); // 30 minutes
-    return server;
-  };
-}();
-
 app.use(cors({
   origin: [
     process.env.FRONTEND_URL || 'http://localhost:3001',
@@ -183,7 +174,7 @@ app.use((err, req, res, next) => {
 });
 
 // ============= START SERVER =============
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`\n🏀 Gestionale Basket API`);
   console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━`);
   console.log(`✅ Server running on http://localhost:${PORT}`);
@@ -192,3 +183,6 @@ app.listen(PORT, () => {
   console.log(`\n🔗 Google OAuth: http://localhost:${PORT}/api/auth/google`);
   console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
 });
+
+// Set socket timeout for long-running downloads/uploads
+server.setTimeout(1800000); // 30 minutes
