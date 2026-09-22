@@ -113,7 +113,7 @@ export default function ScoutingAdminPage() {
     }
   };
 
-  const handleViewVideo = async (fileUrl) => {
+  const handleViewVideo = (fileUrl) => {
     try {
       const token = localStorage.getItem('token');
       const urlParts = fileUrl.split('/');
@@ -121,9 +121,9 @@ export default function ScoutingAdminPage() {
       const filename = urlParts[urlParts.length - 1];
       const apiUrl = `/api/files/${folder}/${filename}?token=${token}`;
 
-      // Use streaming directly instead of loading blob
+      // Open modal immediately, load video in background
       setVideoSrc(apiUrl);
-      setVideoLoading(true);
+      setVideoLoading(false); // Don't show loader
       setVideoViewerOpen(true);
     } catch (error) {
       console.error('Error loading video:', error);
