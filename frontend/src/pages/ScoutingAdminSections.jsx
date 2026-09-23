@@ -113,30 +113,15 @@ export default function ScoutingAdminPage() {
     }
   };
 
-  const handleViewVideo = async (fileUrl) => {
+  const handleViewVideo = (fileUrl) => {
     try {
-      const token = localStorage.getItem('token');
-      const urlParts = fileUrl.split('/');
-      const folder = urlParts[urlParts.length - 2];
-      const filename = urlParts[urlParts.length - 1];
-      const apiUrl = `/api/files/${folder}/${filename}`;
-
-      setVideoLoading(true);
-      setVideoViewerOpen(true);
-
-      const response = await fetch(apiUrl, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (!response.ok) throw new Error('Failed to load video');
-
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      setVideoSrc(blobUrl);
+      // Use direct URL with streaming - no blob loading
+      // DigitalOcean Spaces URLs support range requests for efficient streaming
+      setVideoSrc(fileUrl);
       setVideoLoading(false);
+      setVideoViewerOpen(true);
     } catch (error) {
       console.error('Error loading video:', error);
-      setVideoLoading(false);
     }
   };
 
