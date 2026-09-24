@@ -113,15 +113,29 @@ export default function ScoutingAdminPage() {
     }
   };
 
-  const handleViewVideo = (fileUrl) => {
+  const handleViewVideo = async (fileUrl) => {
     try {
-      // Use direct URL with streaming - no blob loading
-      // DigitalOcean Spaces URLs support range requests for efficient streaming
-      setVideoSrc(fileUrl);
-      setVideoLoading(false);
+      const token = localStorage.getItem('token');
+      const urlParts = fileUrl.split('/');
+      const folder = urlParts[urlParts.length - 2];
+      const filename = urlParts[urlParts.length - 1];
+
+      setVideoLoading(true);
       setVideoViewerOpen(true);
+
+      // Get presigned URL from backend (direct access to Spaces)
+      const response = await fetch(`/api/scouting/${folder}/${filename}/presigned-url`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!response.ok) throw new Error('Failed to get video URL');
+
+      const { url } = await response.json();
+      setVideoSrc(url);
+      setVideoLoading(false);
     } catch (error) {
       console.error('Error loading video:', error);
+      setVideoLoading(false);
     }
   };
 

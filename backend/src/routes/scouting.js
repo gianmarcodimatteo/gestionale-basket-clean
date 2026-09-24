@@ -15,6 +15,7 @@ import {
   deleteScoutingNote,
   cleanupOrphanReports,
 } from '../controllers/scoutingController.js';
+import { getPresignedUrl } from '../controllers/fileController.js';
 
 const router = express.Router();
 
@@ -73,6 +74,7 @@ const checkEditPermission = (req, res, next) => {
 // Routes
 router.get('/', verifyToken, getScoutingReports);
 router.get('/:id', verifyToken, getScoutingReportById);
+router.get('/:folder/:fileId/presigned-url', verifyToken, getPresignedUrl);
 router.post('/', verifyToken, checkEditPermission, upload.single('file'), uploadToSpacesMiddleware, createScoutingReport);
 router.put('/:id', verifyToken, checkEditPermission, upload.single('file'), uploadToSpacesMiddleware, updateScoutingReport);
 router.delete('/:id/file/:fileId', verifyToken, checkEditPermission, deleteScoutingFile);
