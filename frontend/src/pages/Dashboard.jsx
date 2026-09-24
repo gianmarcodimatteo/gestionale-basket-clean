@@ -98,35 +98,27 @@ export default function Dashboard() {
         console.error('Error loading scouting:', e);
       }
 
-      // Sort by timestamp and get top 5
+      // Sort by timestamp and get top 3
       const sortedFiles = allFiles
         .filter(f => f.timestamp)
         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-        .slice(0, 5);
+        .slice(0, 3);
       setRecentFiles(sortedFiles);
-
-      // Load top players
-      const rosterRes = await fetch('/api/roster?page=1&limit=100', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (rosterRes.ok) {
-        const rosterData = await rosterRes.json();
-        const players = rosterData.data || [];
-        setTopPlayers(players);
-      }
-
-      // Load staff count
-      const staffRes = await fetch('/api/staff?page=1&limit=100', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (staffRes.ok) {
-        const staffData = await staffRes.json();
-        setStaffCount(staffData.data?.length || 0);
-      }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFileClick = (file) => {
+    // Navigate to the appropriate section
+    if (file.source === 'Playbook') {
+      navigate('/playbook');
+    } else if (file.source === 'Practices') {
+      navigate('/practices');
+    } else if (file.source === 'Scouting') {
+      navigate('/scouting');
     }
   };
 
@@ -160,41 +152,6 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Recent Files */}
-        <div style={cardStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-            <FileText size={32} style={{ color: '#FF6B35' }} />
-            <h3 style={{ margin: 0, fontSize: '0.875rem', color: '#cbd5e1', fontWeight: '600', textTransform: 'uppercase' }}>Recent Files</h3>
-          </div>
-          <div style={{ fontSize: '2.25rem', fontWeight: '700', color: '#FF6B35', marginBottom: '0.5rem' }}>
-            {recentFiles.length}
-          </div>
-          <div style={{ fontSize: '0.875rem', color: '#7FFF00', fontWeight: '600' }}>Files uploaded</div>
-        </div>
-
-        {/* Total Players */}
-        <div style={cardStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-            <TrendingUp size={32} style={{ color: '#00FF88' }} />
-            <h3 style={{ margin: 0, fontSize: '0.875rem', color: '#cbd5e1', fontWeight: '600', textTransform: 'uppercase' }}>Roster</h3>
-          </div>
-          <div style={{ fontSize: '2.25rem', fontWeight: '700', color: '#00FF88', marginBottom: '0.5rem' }}>
-            {topPlayers.length}
-          </div>
-          <div style={{ fontSize: '0.875rem', color: '#7FFF00', fontWeight: '600' }}>Players on roster</div>
-        </div>
-
-        {/* Staff Count */}
-        <div style={cardStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-            <Users size={32} style={{ color: '#A78BFA' }} />
-            <h3 style={{ margin: 0, fontSize: '0.875rem', color: '#cbd5e1', fontWeight: '600', textTransform: 'uppercase' }}>Staff</h3>
-          </div>
-          <div style={{ fontSize: '2.25rem', fontWeight: '700', color: '#A78BFA', marginBottom: '0.5rem' }}>
-            {staffCount}
-          </div>
-          <div style={{ fontSize: '0.875rem', color: '#7FFF00', fontWeight: '600' }}>Staff members</div>
-        </div>
       </div>
 
       {/* Quick Actions */}
@@ -254,29 +211,7 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* Top Players */}
-      {topPlayers.length > 0 && (
-        <div style={{ ...cardStyle, marginBottom: '2rem' }}>
-          <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: '#cbd5e1', fontWeight: '600', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <TrendingUp size={20} /> Top Players
-          </h3>
-          <div style={{ display: 'grid', gap: '0.75rem' }}>
-            {topPlayers.map((player, idx) => (
-              <div key={player.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: 'rgba(0, 217, 255, 0.05)', borderRadius: '0.5rem', borderLeft: '3px solid #00D9FF' }}>
-                <div>
-                  <div style={{ color: '#e2e8f0', fontWeight: '600', fontSize: '0.9rem' }}>#{idx + 1} {player.name}</div>
-                  <div style={{ color: '#cbd5e1', fontSize: '0.75rem' }}>{player.position}</div>
-                </div>
-                <div style={{ background: 'rgba(0, 217, 255, 0.1)', padding: '0.5rem 1rem', borderRadius: '0.35rem', color: '#00D9FF', fontWeight: '600', fontSize: '0.875rem' }}>
-                  #{player.number}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Recent Files List */}
+      {/* Latest Uploads - Clickable */}
       {recentFiles.length > 0 && (
         <div style={{ ...cardStyle, marginBottom: '2rem' }}>
           <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: '#cbd5e1', fontWeight: '600', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -284,15 +219,38 @@ export default function Dashboard() {
           </h3>
           <div style={{ display: 'grid', gap: '0.75rem' }}>
             {recentFiles.map((file) => (
-              <div key={file.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: 'rgba(255, 107, 53, 0.05)', borderRadius: '0.5rem', borderLeft: '3px solid #FF6B35' }}>
-                <div>
+              <button
+                key={file.id}
+                onClick={() => handleFileClick(file)}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '0.75rem',
+                  background: 'rgba(255, 107, 53, 0.05)',
+                  border: '1px solid rgba(255, 107, 53, 0.2)',
+                  borderLeft: '3px solid #FF6B35',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  transition: 'all 300ms ease',
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 107, 53, 0.15)';
+                  e.currentTarget.style.transform = 'translateX(4px)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 107, 53, 0.05)';
+                  e.currentTarget.style.transform = 'translateX(0)';
+                }}
+              >
+                <div style={{ textAlign: 'left' }}>
                   <div style={{ color: '#e2e8f0', fontWeight: '600', fontSize: '0.9rem' }}>{file.name}</div>
-                  <div style={{ color: '#cbd5e1', fontSize: '0.75rem' }}>{file.side} • {file.fileType}</div>
+                  <div style={{ color: '#cbd5e1', fontSize: '0.75rem' }}>{file.source}</div>
                 </div>
-                <div style={{ color: '#7FFF00', fontSize: '0.75rem' }}>
-                  {new Date(file.createdAt).toLocaleDateString('en-US')}
+                <div style={{ color: '#7FFF00', fontSize: '0.75rem', whiteSpace: 'nowrap', marginLeft: '1rem' }}>
+                  {new Date(file.timestamp).toLocaleDateString('en-US')}
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
