@@ -20,31 +20,90 @@ export default function Dashboard() {
       const token = localStorage.getItem('token');
 
       // Load next game
-      const calendarRes = await fetch('/api/calendar?limit=10', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const futureDate = new Date(today.getTime() + 90 * 24 * 60 * 60 * 1000); // 90 days ahead
+
+      const calendarRes = await fetch(
+        `/api/calendar?startDate=${today.toISOString()}&endDate=${futureDate.toISOString()}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       if (calendarRes.ok) {
         const calendarData = await calendarRes.json();
-        const gameEvents = calendarData.events?.filter(e => e.type === 'PARTITA') || [];
+        // Fix: access .data instead of .events, filter for PARTITA type
+        const gameEvents = calendarData.data?.filter(e => e.type === 'PARTITA') || [];
         if (gameEvents.length > 0) {
           const nextGameEvent = gameEvents[0];
           setNextGame(nextGameEvent);
 
           const gameDate = new Date(nextGameEvent.startTime);
-          const today = new Date();
           const diff = Math.ceil((gameDate - today) / (1000 * 60 * 60 * 24));
           setDaysUntilGame(Math.max(0, diff));
         }
       }
 
-      // Load recent files from playbook
-      const playbookRes = await fetch('/api/playbook?limit=5', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (playbookRes.ok) {
-        const playbookData = await playbookRes.json();
-        setRecentFiles(playbookData.playbooks?.slice(0, 5) || []);
+      // Load recent files from all sections
+      const allFiles = [];
+
+      try {
+        const playbookRes = await fetch('/api/playbook', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (playbookRes.ok) {
+          const playbookData = await playbookRes.json();
+          const playbooks = playbookData.playbooks || [];
+          allFiles.push(...playbooks.map(p => ({
+            ...p,
+            source: 'Playbook',
+            timestamp: p.createdAt || p.updatedAt,
+          })));
+        }
+      } catch (e) {
+        console.error('Error loading playbooks:', e);
       }
+
+      try {
+        const practicesRes = await fetch('/api/practices', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (practicesRes.ok) {
+          const practicesData = await practicesRes.json();
+          const practices = practicesData.data || [];
+          allFiles.push(...practices.map(p => ({
+            ...p,
+            name: p.title,
+            source: 'Practices',
+            timestamp: p.createdAt || p.updatedAt,
+          })));
+        }
+      } catch (e) {
+        console.error('Error loading practices:', e);
+      }
+
+      try {
+        const scoutingRes = await fetch('/api/scouting', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (scoutingRes.ok) {
+          const scoutingData = await scoutingRes.json();
+          const scouting = scoutingData.data || [];
+          allFiles.push(...scouting.map(s => ({
+            ...s,
+            name: s.playerName || s.opponent,
+            source: 'Scouting',
+            timestamp: s.createdAt || s.updatedAt,
+          })));
+        }
+      } catch (e) {
+        console.error('Error loading scouting:', e);
+      }
+
+      // Sort by timestamp and get top 5
+      const sortedFiles = allFiles
+        .filter(f => f.timestamp)
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .slice(0, 5);
+      setRecentFiles(sortedFiles);
 
       // Load top players
       const rosterRes = await fetch('/api/roster?page=1&limit=100', {
