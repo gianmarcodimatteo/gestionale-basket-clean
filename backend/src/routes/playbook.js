@@ -11,6 +11,7 @@ import {
   deletePlaybook,
   getAllTags,
 } from '../controllers/playbookController.js';
+import { getPresignedUrl } from '../controllers/fileController.js';
 
 const router = express.Router();
 
@@ -66,6 +67,7 @@ const checkEditPermission = (req, res, next) => {
 // Routes
 router.get('/', verifyToken, getPlaybooks);
 router.get('/tags/all', verifyToken, getAllTags);
+router.get('/:folder/:fileId/presigned-url', verifyToken, getPresignedUrl);
 router.get('/:id', verifyToken, getPlaybookById);
 router.post('/', verifyToken, checkEditPermission, upload.single('file'), uploadToSpacesMiddleware, createPlaybook);
 router.put('/:id', verifyToken, checkEditPermission, upload.single('file'), uploadToSpacesMiddleware, updatePlaybook);

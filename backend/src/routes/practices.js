@@ -11,6 +11,7 @@ import {
   deleteTrainingSession,
   uploadTrainingVideo,
 } from '../controllers/practicesController.js';
+import { getPresignedUrl } from '../controllers/fileController.js';
 
 const router = express.Router();
 
@@ -61,6 +62,7 @@ const checkEditPermission = (req, res, next) => {
 
 // Routes
 router.get('/', verifyToken, getTrainingSessions);
+router.get('/:folder/:fileId/presigned-url', verifyToken, getPresignedUrl);
 router.get('/:id', verifyToken, getTrainingSessionById);
 router.post('/', verifyToken, checkEditPermission, upload.single('video'), uploadToSpacesMiddleware, createTrainingSession);
 router.put('/:id', verifyToken, checkEditPermission, upload.single('video'), uploadToSpacesMiddleware, updateTrainingSession);
