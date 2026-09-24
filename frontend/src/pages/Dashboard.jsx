@@ -11,6 +11,9 @@ export default function Dashboard() {
   const [staffCount, setStaffCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  const userRole = JSON.parse(localStorage.getItem('user') || '{}').role;
+  const isAdmin = userRole === 'ADMIN';
+
   useEffect(() => {
     loadDashboardData();
   }, []);
@@ -154,62 +157,64 @@ export default function Dashboard() {
 
       </div>
 
-      {/* Quick Actions */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
-        <button
-          onClick={() => navigate('/playbook')}
-          style={{
-            ...cardStyle,
-            background: 'linear-gradient(135deg, rgba(0, 217, 255, 0.15), rgba(0, 217, 255, 0.05))',
-            border: '2px solid rgba(0, 217, 255, 0.4)',
-            cursor: 'pointer',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '2rem',
-            transition: 'all 300ms ease',
-          }}
-          onMouseOver={(e) => {
-            e.target.style.background = 'linear-gradient(135deg, rgba(0, 217, 255, 0.25), rgba(0, 217, 255, 0.1))';
-            e.target.style.boxShadow = '0 0 20px rgba(0, 217, 255, 0.3)';
-          }}
-          onMouseOut={(e) => {
-            e.target.style.background = 'linear-gradient(135deg, rgba(0, 217, 255, 0.15), rgba(0, 217, 255, 0.05))';
-            e.target.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.4)';
-          }}
-        >
-          <Plus size={32} style={{ color: '#00D9FF', marginBottom: '0.5rem' }} />
-          <span style={{ color: '#00D9FF', fontWeight: '600', fontSize: '0.9rem' }}>Add Playbook</span>
-        </button>
+      {/* Quick Actions - Admin only */}
+      {isAdmin && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+          <button
+            onClick={() => navigate('/playbook')}
+            style={{
+              ...cardStyle,
+              background: 'linear-gradient(135deg, rgba(0, 217, 255, 0.15), rgba(0, 217, 255, 0.05))',
+              border: '2px solid rgba(0, 217, 255, 0.4)',
+              cursor: 'pointer',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '2rem',
+              transition: 'all 300ms ease',
+            }}
+            onMouseOver={(e) => {
+              e.target.style.background = 'linear-gradient(135deg, rgba(0, 217, 255, 0.25), rgba(0, 217, 255, 0.1))';
+              e.target.style.boxShadow = '0 0 20px rgba(0, 217, 255, 0.3)';
+            }}
+            onMouseOut={(e) => {
+              e.target.style.background = 'linear-gradient(135deg, rgba(0, 217, 255, 0.15), rgba(0, 217, 255, 0.05))';
+              e.target.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.4)';
+            }}
+          >
+            <Plus size={32} style={{ color: '#00D9FF', marginBottom: '0.5rem' }} />
+            <span style={{ color: '#00D9FF', fontWeight: '600', fontSize: '0.9rem' }}>Add Playbook</span>
+          </button>
 
-        <button
-          onClick={() => navigate('/practices')}
-          style={{
-            ...cardStyle,
-            background: 'linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(255, 107, 53, 0.05))',
-            border: '2px solid rgba(255, 107, 53, 0.4)',
-            cursor: 'pointer',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '2rem',
-            transition: 'all 300ms ease',
-          }}
-          onMouseOver={(e) => {
-            e.target.style.background = 'linear-gradient(135deg, rgba(255, 107, 53, 0.25), rgba(255, 107, 53, 0.1))';
-            e.target.style.boxShadow = '0 0 20px rgba(255, 107, 53, 0.3)';
-          }}
-          onMouseOut={(e) => {
-            e.target.style.background = 'linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(255, 107, 53, 0.05))';
-            e.target.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.4)';
-          }}
-        >
-          <Upload size={32} style={{ color: '#FF6B35', marginBottom: '0.5rem' }} />
-          <span style={{ color: '#FF6B35', fontWeight: '600', fontSize: '0.9rem' }}>Upload Video</span>
-        </button>
-      </div>
+          <button
+            onClick={() => navigate('/practices')}
+            style={{
+              ...cardStyle,
+              background: 'linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(255, 107, 53, 0.05))',
+              border: '2px solid rgba(255, 107, 53, 0.4)',
+              cursor: 'pointer',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '2rem',
+              transition: 'all 300ms ease',
+            }}
+            onMouseOver={(e) => {
+              e.target.style.background = 'linear-gradient(135deg, rgba(255, 107, 53, 0.25), rgba(255, 107, 53, 0.1))';
+              e.target.style.boxShadow = '0 0 20px rgba(255, 107, 53, 0.3)';
+            }}
+            onMouseOut={(e) => {
+              e.target.style.background = 'linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(255, 107, 53, 0.05))';
+              e.target.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.4)';
+            }}
+          >
+            <Upload size={32} style={{ color: '#FF6B35', marginBottom: '0.5rem' }} />
+            <span style={{ color: '#FF6B35', fontWeight: '600', fontSize: '0.9rem' }}>Upload Video</span>
+          </button>
+        </div>
+      )}
 
       {/* Latest Uploads - Clickable */}
       {recentFiles.length > 0 && (
