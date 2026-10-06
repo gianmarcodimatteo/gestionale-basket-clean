@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ScoutingAdminSections from './ScoutingAdminSections';
+import CoachesAdminSections from './CoachesAdminSections';
 import '../styles/PasswordModal.css';
 
 export default function CoachesPage() {
@@ -44,5 +44,5 @@ export default function CoachesPage() {
     );
   }
 
-  return <ScoutingAdminSections />;
+  return <CoachesAdminSections />;
 }
