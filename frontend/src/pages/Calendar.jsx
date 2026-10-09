@@ -45,6 +45,7 @@ const DAILY_REPORT_SECTIONS = [
 
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
+  const [rosterPlayers, setRosterPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('week');
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -71,9 +72,16 @@ export default function CalendarPage() {
     notes: '',
     opponent: '',
     participants: [],
+    availability: {},
     isRecurring: false,
     reminder: 'none',
   });
+
+  const isPlayerAvailable = (player) => formData.availability[player.id] ?? player.status !== 'INJURED';
+
+  const setPlayerAvailable = (playerId, available) => {
+    setFormData((prev) => ({ ...prev, availability: { ...prev.availability, [playerId]: available } }));
+  };
 
   const userRole = JSON.parse(localStorage.getItem('user') || '{}').role;
   const canEdit = ['ADMIN', 'EDITOR'].includes(userRole);
@@ -96,6 +104,16 @@ export default function CalendarPage() {
   useEffect(() => {
     loadEvents();
   }, [currentDate]);
+
+  useEffect(() => {
+    if (!isModalOpen || !canEdit) return;
+    fetch('/api/availability/players', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+    })
+      .then((res) => res.json())
+      .then((json) => setRosterPlayers(json.data || []))
+      .catch((error) => console.error('Error loading players:', error));
+  }, [isModalOpen]);
 
   useEffect(() => {
     if (viewMode === 'daily-report' && dailyReportAuthenticated) {
@@ -199,6 +217,7 @@ export default function CalendarPage() {
       ...formData,
       startTime: slotInfo.start,
       endTime: new Date(slotInfo.start.getTime() + 60 * 60 * 1000),
+      availability: {},
     });
     setIsModalOpen(true);
   };
@@ -209,6 +228,7 @@ export default function CalendarPage() {
       ...event,
       startTime: event.start,
       endTime: event.end,
+      availability: Object.fromEntries((event.availabilities || []).map((a) => [a.rosterId, a.available])),
     });
     if (canEdit) setIsModalOpen(true);
   };
@@ -218,6 +238,7 @@ export default function CalendarPage() {
     try {
       const payload = {
         ...formData,
+        availability: rosterPlayers.map((p) => ({ rosterId: p.id, available: isPlayerAvailable(p) })),
         startTime: formData.startTime.toISOString(),
         endTime: formData.endTime.toISOString(),
         createdBy: JSON.parse(localStorage.getItem('user') || '{}').id,
@@ -285,6 +306,7 @@ export default function CalendarPage() {
       description: '',
       notes: '',
       participants: [],
+      availability: {},
       isRecurring: false,
     });
   };
@@ -685,6 +707,37 @@ export default function CalendarPage() {
                 <label>Description</label>
                 <textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Event description..." rows={3} />
               </div>
+              {rosterPlayers.length > 0 && (
+                <div className="form-group">
+                  <label>Players availability</label>
+                  <div className="availability-picker">
+                    {rosterPlayers.map((player) => {
+                      const available = isPlayerAvailable(player);
+                      return (
+                        <div key={player.id} className="availability-picker-row">
+                          <span>#{player.number} {player.name}</span>
+                          <div className="availability-picker-toggle">
+                            <button
+                              type="button"
+                              className={available ? 'active-available' : ''}
+                              onClick={() => setPlayerAvailable(player.id, true)}
+                            >
+                              Available
+                            </button>
+                            <button
+                              type="button"
+                              className={!available ? 'active-unavailable' : ''}
+                              onClick={() => setPlayerAvailable(player.id, false)}
+                            >
+                              Not available
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               <div className="form-group">
                 <label>Reminder</label>
                 <select value={formData.reminder} onChange={e => setFormData({ ...formData, reminder: e.target.value })}>

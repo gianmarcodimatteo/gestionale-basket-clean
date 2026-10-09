@@ -13,6 +13,7 @@ import Staff from './pages/Staff';
 import Roster from './pages/Roster';
 import PlayerDetail from './pages/PlayerDetail';
 import Calendar from './pages/Calendar';
+import Availability from './pages/Availability';
 import Practices from './pages/Practices';
 import PracticesShooting from './pages/PracticesShooting';
 import MyProfile from './pages/MyProfile';
@@ -48,6 +49,7 @@ function AppContent() {
           <Route path="/roster/:id" element={<PlayerDetail />} />
           <Route path="/roster/:id/shooting-stats" element={<PracticesShootingStats />} />
           <Route path="/calendar" element={<Calendar />} />
+          <Route path="/availability" element={<Availability />} />
           <Route path="/practices" element={<Practices />} />
           <Route path="/practices-shooting" element={<PracticesShooting />} />
           <Route path="/my-profile" element={<MyProfile />} />

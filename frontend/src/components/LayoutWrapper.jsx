@@ -3,7 +3,7 @@ import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
 import { useUserRole } from '../hooks/useUserRole';
 import { useToast } from '../context/ToastContext';
 import { setToastCallback, setNavigateCallback } from '../utils/apiClient';
-import { Menu, X, Home, Users, Grid, Calendar, Dumbbell, BookOpen, Crosshair, Settings, LogOut, User, Shield } from 'lucide-react';
+import { Menu, X, Home, Users, Grid, Calendar, Dumbbell, BookOpen, Crosshair, Settings, LogOut, User, Shield, UserCheck } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 import NotificationPanel from './NotificationPanel';
 import GeasLogo from '../assets/Logo-GEAS-2.png';
@@ -14,6 +14,7 @@ const navigationItems = [
   { label: 'Staff', path: '/staff', icon: Users },
   { label: 'Roster', path: '/roster', icon: Grid },
   { label: 'Calendar', path: '/calendar', icon: Calendar },
+  { label: 'Availability', path: '/availability', icon: UserCheck },
   { label: 'Practices', path: '/practices', icon: Dumbbell },
   { label: 'Practices Shooting Stats', path: '/practices-shooting', icon: Crosshair },
   { label: 'Playbook', path: '/playbook', icon: BookOpen },

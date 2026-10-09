@@ -23,6 +23,7 @@ import playbookRoutes from './routes/playbook.js';
 import scoutingRoutes from './routes/scouting.js';
 import scoutingSectionsRoutes from './routes/scoutingSections.js';
 import coachesRoutes from './routes/coaches.js';
+import availabilityRoutes from './routes/availability.js';
 import shootingStatsRoutes from './routes/shootingStats.js';
 import usersRoutes from './routes/users.js';
 import notificationsRoutes from './routes/notifications.js';
@@ -137,6 +138,9 @@ app.use('/api/scouting', verifyToken, scoutingRoutes);
 
 // Coaches routes (require authentication) - Independent from Scouting
 app.use('/api/coaches', verifyToken, coachesRoutes);
+
+// Availability routes (require authentication)
+app.use('/api/availability', verifyToken, availabilityRoutes);
 
 // Scouting Sections routes (require authentication)
 app.use('/api/scouting-sections', verifyToken, scoutingSectionsRoutes);

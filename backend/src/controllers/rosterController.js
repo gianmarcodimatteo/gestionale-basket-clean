@@ -85,7 +85,7 @@ export const getRosterById = async (req, res) => {
 // Creare nuova giocatrice
 export const createRoster = async (req, res) => {
   try {
-    const { name, number, position, height, weight, dateOfBirth, nationality, instatId } = req.body;
+    const { name, number, position, height, weight, dateOfBirth, nationality, instatId, status, notes } = req.body;
 
     if (!name || !number || !position) {
       return res.status(400).json({ error: 'Nome, numero e posizione sono obbligatori' });
@@ -113,6 +113,8 @@ export const createRoster = async (req, res) => {
         nationality: nationality || null,
         photo: photoUrl,
         instatId: instatId || null,
+        status: ['AVAILABLE', 'LIMITED', 'INJURED'].includes(status) ? status : 'AVAILABLE',
+        notes: notes || null,
       },
       include: { stats: true },
     });
@@ -141,7 +143,7 @@ export const createRoster = async (req, res) => {
 export const updateRoster = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, number, position, height, weight, dateOfBirth, nationality, instatId, active } = req.body;
+    const { name, number, position, height, weight, dateOfBirth, nationality, instatId, active, status, notes } = req.body;
 
     const existingPlayer = await prisma.roster.findUnique({
       where: { id },
@@ -181,6 +183,8 @@ export const updateRoster = async (req, res) => {
         ...(instatId && { instatId }),
         ...(photoUrl && { photo: photoUrl }),
         ...(active !== undefined && { active }),
+        ...(['AVAILABLE', 'LIMITED', 'INJURED'].includes(status) && { status }),
+        ...(notes !== undefined && { notes: notes || null }),
       },
       include: { stats: true, injuries: true },
     });

@@ -65,6 +65,7 @@ export async function getEvents(req, res) {
         participants: true,
         notifications: true,
         recurrence: true,
+        availabilities: true,
       },
       orderBy: { startTime: 'asc' },
     });
@@ -101,6 +102,7 @@ export async function getEventById(req, res) {
         participants: true,
         notifications: true,
         recurrence: true,
+        availabilities: true,
       },
     });
 
@@ -118,7 +120,7 @@ export async function getEventById(req, res) {
 // POST /api/calendar/events
 export async function createEvent(req, res) {
   try {
-    const { title, description, type, startTime, endTime, location, opponent, notes, participants, isRecurring, recurrence, createdBy } = req.body;
+    const { title, description, type, startTime, endTime, location, opponent, notes, participants, availability, isRecurring, recurrence, createdBy } = req.body;
 
     console.log('📅 Creating event:', { title, startTime, received: new Date(startTime).toISOString() });
 
@@ -159,10 +161,18 @@ export async function createEvent(req, res) {
               },
             }
           : undefined,
+        availabilities: availability?.length
+          ? {
+              createMany: {
+                data: availability.map(a => ({ rosterId: a.rosterId, available: a.available !== false })),
+              },
+            }
+          : undefined,
       },
       include: {
         participants: true,
         recurrence: true,
+        availabilities: true,
       },
     });
 
@@ -209,7 +219,7 @@ export async function createEvent(req, res) {
 export async function updateEvent(req, res) {
   try {
     const { id } = req.params;
-    const { title, description, type, startTime, endTime, location, opponent, notes, participants, updatedBy } = req.body;
+    const { title, description, type, startTime, endTime, location, opponent, notes, participants, availability, updatedBy } = req.body;
 
     const event = await prisma.calendarEvent.update({
       where: { id },
@@ -227,8 +237,22 @@ export async function updateEvent(req, res) {
       include: {
         participants: true,
         recurrence: true,
+        availabilities: true,
       },
     });
+
+    if (availability) {
+      await prisma.calendarEventAvailability.deleteMany({ where: { eventId: id } });
+      if (availability.length > 0) {
+        await prisma.calendarEventAvailability.createMany({
+          data: availability.map(a => ({
+            eventId: id,
+            rosterId: a.rosterId,
+            available: a.available !== false,
+          })),
+        });
+      }
+    }
 
     // Aggiorna partecipanti se forniti
     if (participants) {

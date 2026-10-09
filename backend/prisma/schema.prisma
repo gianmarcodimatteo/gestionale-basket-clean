@@ -81,6 +81,8 @@ model Roster {
   photo         String?
   instatId      String?  // ID Instat della giocatrice
   active        Boolean  @default(true)
+  status        String   @default("AVAILABLE") // AVAILABLE, LIMITED, INJURED
+  notes         String?
   joinDate      DateTime @default(now())
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -90,6 +92,7 @@ model Roster {
   gameStats     GameCardStat[]
   injuries      Injury[]
   shootingStats PracticesShootingStats[]
+  eventAvailabilities CalendarEventAvailability[]
 
   @@index([number])
   @@index([position])
@@ -210,6 +213,7 @@ model CalendarEvent {
   trainingSessions  TrainingSession[]
   gameCard          GameCard?
   scoutingReports   ScoutingReport[] @relation("ScoutingToEvent")
+  availabilities    CalendarEventAvailability[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -230,6 +234,20 @@ model EventRecurrence {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model CalendarEventAvailability {
+  id          String   @id @default(cuid())
+  available   Boolean  @default(true)
+
+  eventId     String
+  event       CalendarEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  rosterId    String
+  roster      Roster   @relation(fields: [rosterId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, rosterId])
+  @@index([rosterId])
 }
 
 model CalendarEventParticipant {
