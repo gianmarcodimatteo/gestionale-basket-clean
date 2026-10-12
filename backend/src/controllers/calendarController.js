@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { uploadToSpaces } from '../utils/spacesUpload.js';
+import { syncGameFolders } from '../services/gameFolders.js';
 
 const prisma = new PrismaClient();
 
@@ -210,6 +211,8 @@ export async function createEvent(req, res) {
       }
     }
 
+    await syncGameFolders(event, req.user?.id).catch(err => console.error('Game folders sync failed:', err));
+
     res.status(201).json({ success: true, data: event });
   } catch (error) {
     console.error('Errore nella creazione dell\'evento:', error);
@@ -276,6 +279,8 @@ export async function updateEvent(req, res) {
         });
       }
     }
+
+    await syncGameFolders(event, req.user?.id).catch(err => console.error('Game folders sync failed:', err));
 
     res.json({ success: true, data: event });
   } catch (error) {

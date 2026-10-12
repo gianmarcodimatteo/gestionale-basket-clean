@@ -271,33 +271,6 @@ export default function CalendarPage() {
         await createEvent(payload);
       }
 
-      // Auto-create Scouting report for Game opponent
-      if (formData.type === 'PARTITA' && formData.opponent) {
-        try {
-          const scoutingPayload = {
-            opponent: formData.opponent,
-            opponentLogo: formData.opponentLogo || null,
-            matchDate: formData.startTime.toISOString(),
-            eventId: selectedEvent?.id,
-          };
-
-          const response = await fetch('/api/scouting', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-            body: JSON.stringify(scoutingPayload),
-          });
-
-          if (!response.ok) {
-            console.error('Failed to create scouting report');
-          }
-        } catch (error) {
-          console.error('Error creating scouting report:', error);
-        }
-      }
-
       resetForm();
       loadEvents();
     } catch (error) {

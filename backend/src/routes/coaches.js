@@ -4,17 +4,14 @@ import path from 'path';
 import { verifyToken } from '../middleware/auth.js';
 import { uploadToSpaces } from '../utils/spacesUpload.js';
 import {
-  getScoutingReports,
-  getScoutingReportById,
-  createScoutingReport,
-  updateScoutingReport,
-  deleteScoutingReport,
-  deleteScoutingFile,
-  createScoutingNote,
-  getScoutingNotes,
-  deleteScoutingNote,
-  cleanupOrphanReports,
-} from '../controllers/scoutingController.js';
+  getCoachesReports,
+  getCoachesReportById,
+  createCoachesReport,
+  updateCoachesReport,
+  deleteCoachesReport,
+  deleteCoachesFile,
+  cleanupOrphanCoachesReports,
+} from '../controllers/coachesController.js';
 import { getPresignedUrl } from '../controllers/fileController.js';
 
 const router = express.Router();
@@ -72,21 +69,15 @@ const checkEditPermission = (req, res, next) => {
 };
 
 // Routes
-router.get('/', verifyToken, getScoutingReports);
-router.get('/:id', verifyToken, getScoutingReportById);
+router.get('/', verifyToken, getCoachesReports);
+router.get('/:id', verifyToken, getCoachesReportById);
 router.get('/:folder/:fileId/presigned-url', verifyToken, getPresignedUrl);
-router.post('/', verifyToken, checkEditPermission, upload.single('file'), uploadToSpacesMiddleware, createScoutingReport);
-router.put('/:id', verifyToken, checkEditPermission, upload.single('file'), uploadToSpacesMiddleware, updateScoutingReport);
-router.delete('/:id/file/:fileId', verifyToken, checkEditPermission, deleteScoutingFile);
-router.delete('/:id/file', verifyToken, checkEditPermission, deleteScoutingFile);
-router.delete('/:id', verifyToken, checkEditPermission, deleteScoutingReport);
+router.post('/', verifyToken, checkEditPermission, upload.single('file'), uploadToSpacesMiddleware, createCoachesReport);
+router.put('/:id', verifyToken, checkEditPermission, upload.single('file'), uploadToSpacesMiddleware, updateCoachesReport);
+router.delete('/:id/file/:fileId', verifyToken, checkEditPermission, deleteCoachesFile);
+router.delete('/:id/file', verifyToken, checkEditPermission, deleteCoachesFile);
+router.delete('/:id', verifyToken, checkEditPermission, deleteCoachesReport);
 
-// Notes routes
-router.get('/:id/notes', verifyToken, getScoutingNotes);
-router.post('/notes/create', verifyToken, createScoutingNote);
-router.delete('/notes/:id', verifyToken, checkEditPermission, deleteScoutingNote);
-
-// Cleanup routes
-router.post('/cleanup/orphans', verifyToken, checkEditPermission, cleanupOrphanReports);
+router.post('/cleanup/orphans', verifyToken, checkEditPermission, cleanupOrphanCoachesReports);
 
 export default router;

@@ -27,6 +27,7 @@ model User {
   trainingSessions TrainingSession[]
   playlists     TrainingPlaylist[] @relation("PlaylistCreator")
   scoutingReports ScoutingReport[]
+  coachesReports  CoachesReport[]
   scoutingNotes  ScoutingNote[]
   notifications Notification[]
 
@@ -214,6 +215,7 @@ model CalendarEvent {
   trainingSessions  TrainingSession[]
   gameCard          GameCard?
   scoutingReports   ScoutingReport[] @relation("ScoutingToEvent")
+  coachesReports    CoachesReport[] @relation("CoachesToEvent")
   availabilities    CalendarEventAvailability[]
 
   createdAt       DateTime @default(now())
@@ -707,4 +709,41 @@ model Notification {
 
   @@index([userId])
   @@index([createdAt])
+}
+
+model CoachesReport {
+  id            String   @id @default(cuid())
+  opponent      String
+  opponentLogo  String?
+  date          DateTime @default(now())
+  matchDate     DateTime?
+  content       String?
+  notes         String?
+
+  eventId       String?
+  event         CalendarEvent? @relation("CoachesToEvent", fields: [eventId], references: [id], onDelete: SetNull)
+
+  creatorId     String
+  creator       User     @relation(fields: [creatorId], references: [id])
+
+  files         CoachesFile[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([opponent])
+  @@index([matchDate])
+  @@index([eventId])
+}
+
+model CoachesFile {
+  id            String   @id @default(cuid())
+  fileUrl       String
+  fileType      String
+  fileTitle     String?
+  reportId      String
+  report        CoachesReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+
+  @@index([reportId])
 }

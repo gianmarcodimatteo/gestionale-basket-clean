@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Download, FileText, Video } from 'lucide-react';
-import { getScoutingReports, deleteScoutingReport } from '../services/scoutingService.js';
+import { getCoachesReports, deleteCoachesReport } from '../services/coachesService.js';
 import { getAuthenticatedFileUrl } from '../utils/fileUrl.js';
 import { uploadWithProgress } from '../utils/uploadWithProgress.js';
 import OpponentFolders from '../components/OpponentFolders.jsx';
@@ -31,7 +31,7 @@ export default function ScoutingAdminPage() {
   const loadReports = async () => {
     try {
       setLoading(true);
-      const res = await getScoutingReports({});
+      const res = await getCoachesReports({});
       setReports(res.data || []);
       // NON selezionare il primo report automaticamente - l'utente deve cliccare
       // setSelectedReportId(res.data[0].id);
@@ -143,7 +143,7 @@ export default function ScoutingAdminPage() {
   const handleDelete = async (id) => {
     if (window.confirm('Delete this report?')) {
       try {
-        await deleteScoutingReport(id);
+        await deleteCoachesReport(id);
         loadReports();
       } catch (error) {
         console.error('Error deleting:', error);
