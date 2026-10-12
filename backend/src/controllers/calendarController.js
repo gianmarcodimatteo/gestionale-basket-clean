@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { uploadToSpaces } from '../utils/spacesUpload.js';
 
 const prisma = new PrismaClient();
 
@@ -120,7 +121,7 @@ export async function getEventById(req, res) {
 // POST /api/calendar/events
 export async function createEvent(req, res) {
   try {
-    const { title, description, type, startTime, endTime, location, opponent, notes, participants, availability, isRecurring, recurrence, createdBy } = req.body;
+    const { title, description, type, startTime, endTime, location, opponent, opponentLogo, notes, participants, availability, isRecurring, recurrence, createdBy } = req.body;
 
     console.log('📅 Creating event:', { title, startTime, received: new Date(startTime).toISOString() });
 
@@ -146,6 +147,7 @@ export async function createEvent(req, res) {
         endTime: endTime ? new Date(endTime) : null,
         location,
         opponent,
+        opponentLogo: opponentLogo || null,
         notes,
         createdBy,
         isRecurring: isRecurring || false,
@@ -219,7 +221,7 @@ export async function createEvent(req, res) {
 export async function updateEvent(req, res) {
   try {
     const { id } = req.params;
-    const { title, description, type, startTime, endTime, location, opponent, notes, participants, availability, updatedBy } = req.body;
+    const { title, description, type, startTime, endTime, location, opponent, opponentLogo, notes, participants, availability, updatedBy } = req.body;
 
     const event = await prisma.calendarEvent.update({
       where: { id },
@@ -231,6 +233,7 @@ export async function updateEvent(req, res) {
         endTime: endTime ? new Date(endTime) : undefined,
         location,
         opponent,
+        opponentLogo: opponentLogo === undefined ? undefined : opponentLogo || null,
         notes,
         updatedBy,
       },
@@ -360,5 +363,19 @@ export async function declineEvent(req, res) {
   } catch (error) {
     console.error('Errore nel rifiuto dell\'evento:', error);
     res.status(500).json({ success: false, error: error.message });
+  }
+}
+
+// POST /api/calendar/opponent-logo
+export async function uploadOpponentLogo(req, res) {
+  if (!req.file) {
+    return res.status(400).json({ success: false, error: 'Logo mancante' });
+  }
+  try {
+    const url = await uploadToSpaces(req.file, 'opponents', { acl: 'public-read' });
+    res.json({ success: true, url });
+  } catch (error) {
+    console.error('Error uploading opponent logo:', error);
+    res.status(500).json({ success: false, error: 'Errore nel caricamento del logo' });
   }
 }

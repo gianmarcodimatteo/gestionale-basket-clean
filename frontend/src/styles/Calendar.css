@@ -677,3 +677,12 @@
   color: #111;
   font-weight: 700;
 }
+
+.opponent-logo-preview {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  margin-bottom: 0.5rem;
+  border-radius: 0.4rem;
+  background: rgba(255, 255, 255, 0.05);
+}

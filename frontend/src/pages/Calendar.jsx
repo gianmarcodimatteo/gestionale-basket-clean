@@ -71,11 +71,32 @@ export default function CalendarPage() {
     description: '',
     notes: '',
     opponent: '',
+    opponentLogo: '',
     participants: [],
     availability: {},
     isRecurring: false,
     reminder: 'none',
   });
+
+  const handleOpponentLogoChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const body = new FormData();
+    body.append('logo', file);
+    try {
+      const res = await fetch('/api/calendar/opponent-logo', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        body,
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Upload failed');
+      setFormData((prev) => ({ ...prev, opponentLogo: json.url }));
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      alert('Errore nel caricamento del logo');
+    }
+  };
 
   const isPlayerAvailable = (player) => formData.availability[player.id] ?? player.status !== 'INJURED';
 
@@ -255,6 +276,7 @@ export default function CalendarPage() {
         try {
           const scoutingPayload = {
             opponent: formData.opponent,
+            opponentLogo: formData.opponentLogo || null,
             matchDate: formData.startTime.toISOString(),
             eventId: selectedEvent?.id,
           };
@@ -307,6 +329,7 @@ export default function CalendarPage() {
       notes: '',
       participants: [],
       availability: {},
+      opponentLogo: '',
       isRecurring: false,
     });
   };
@@ -661,6 +684,15 @@ export default function CalendarPage() {
                 <div className="form-group">
                   <label>Opponent</label>
                   <input type="text" value={formData.opponent} onChange={e => setFormData({ ...formData, opponent: e.target.value })} placeholder="Enter opponent name" />
+                </div>
+              )}
+              {formData.type === 'PARTITA' && (
+                <div className="form-group">
+                  <label>Opponent logo</label>
+                  {formData.opponentLogo && (
+                    <img src={formData.opponentLogo} alt="Opponent logo" className="opponent-logo-preview" />
+                  )}
+                  <input type="file" accept="image/*" onChange={handleOpponentLogoChange} />
                 </div>
               )}
               <div className="form-row">

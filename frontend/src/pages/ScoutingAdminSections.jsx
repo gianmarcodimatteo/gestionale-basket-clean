@@ -3,6 +3,7 @@ import { Plus, Trash2, Download, FileText, Video } from 'lucide-react';
 import { getScoutingReports, deleteScoutingReport } from '../services/scoutingService.js';
 import { getAuthenticatedFileUrl } from '../utils/fileUrl.js';
 import { uploadWithProgress } from '../utils/uploadWithProgress.js';
+import OpponentFolders from '../components/OpponentFolders.jsx';
 import '../styles/Scouting.css';
 
 export default function ScoutingAdminPage() {
@@ -191,52 +192,7 @@ export default function ScoutingAdminPage() {
         )}
       </div>
 
-      {/* Folders Grid */}
-      {reports.length > 0 ? (
-        <div className="folders-grid">
-          {reports.map(report => (
-            <button
-              key={report.id}
-              onClick={() => setSelectedReportId(report.id)}
-              className={`folder-button ${selectedReportId === report.id ? 'active' : ''}`}
-              style={{
-                padding: '1rem 1.5rem',
-                background: selectedReportId === report.id
-                  ? 'linear-gradient(135deg, rgba(0, 217, 255, 0.3), rgba(0, 217, 255, 0.1))'
-                  : 'rgba(26, 31, 58, 0.7)',
-                border: selectedReportId === report.id
-                  ? '2px solid #00D9FF'
-                  : '1px solid rgba(0, 217, 255, 0.2)',
-                borderRadius: '0.5rem',
-                cursor: 'pointer',
-                transition: 'all 200ms ease',
-                textAlign: 'center',
-                display: 'inline-block',
-                fontWeight: '600',
-                color: selectedReportId === report.id ? '#00D9FF' : '#f1f5f9',
-              }}
-              onMouseEnter={(e) => {
-                if (selectedReportId !== report.id) {
-                  e.currentTarget.style.background = 'rgba(0, 217, 255, 0.15)';
-                  e.currentTarget.style.borderColor = 'rgba(0, 217, 255, 0.4)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (selectedReportId !== report.id) {
-                  e.currentTarget.style.background = 'rgba(26, 31, 58, 0.7)';
-                  e.currentTarget.style.borderColor = 'rgba(0, 217, 255, 0.2)';
-                }
-              }}
-            >
-              {report.opponent}
-            </button>
-          ))}
-        </div>
-      ) : (
-        <div style={{ textAlign: 'center', padding: '3rem 2rem', color: '#cbd5e1', fontSize: '1.1rem' }}>
-          Create a Game event in Calendar to add scouting folders
-        </div>
-      )}
+      <OpponentFolders reports={reports} selectedReportId={selectedReportId} onSelect={setSelectedReportId} />
 
       {selectedReport && (
         <div style={{ marginTop: '2rem' }}>

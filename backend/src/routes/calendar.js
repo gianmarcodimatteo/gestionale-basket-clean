@@ -1,4 +1,5 @@
 import express from 'express';
+import multer from 'multer';
 import { verifyToken } from '../middleware/auth.js';
 import {
   getEvents,
@@ -8,6 +9,7 @@ import {
   deleteEvent,
   acceptEvent,
   declineEvent,
+  uploadOpponentLogo,
 } from '../controllers/calendarController.js';
 
 const router = express.Router();
@@ -20,6 +22,19 @@ const checkEditPermission = (req, res, next) => {
   }
   next();
 };
+
+const logoUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (allowedMimes.includes(file.mimetype)) cb(null, true);
+    else cb(new Error('Solo immagini JPEG, PNG o WebP sono permesse'));
+  },
+});
+
+// POST - carica il logo dell'avversario (solo ADMIN/EDITOR)
+router.post('/opponent-logo', verifyToken, checkEditPermission, logoUpload.single('logo'), uploadOpponentLogo);
 
 // GET - recupera eventi per un range di date
 router.get('/', verifyToken, getEvents);

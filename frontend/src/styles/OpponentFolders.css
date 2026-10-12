@@ -1,0 +1,162 @@
+.opponent-folders-empty {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #cbd5e1;
+  font-size: 1.1rem;
+}
+
+.opponent-folders {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.opponent-folders-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.opponent-folders-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0, 217, 255, 0.25);
+  background: rgba(26, 31, 58, 0.7);
+  color: #cbd5e1;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.opponent-folders-toolbar button.active {
+  border-color: #00D9FF;
+  color: #00D9FF;
+  background: rgba(0, 217, 255, 0.12);
+}
+
+.opponent-logo {
+  object-fit: contain;
+  border-radius: 0.4rem;
+  flex-shrink: 0;
+}
+
+.opponent-logo-lg {
+  width: 72px;
+  height: 72px;
+}
+
+.opponent-logo-sm {
+  width: 32px;
+  height: 32px;
+}
+
+.opponent-logo-placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 217, 255, 0.12);
+  color: #00D9FF;
+  font-weight: 700;
+}
+
+.opponent-folder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 1rem;
+}
+
+.opponent-folder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 1.1rem 0.9rem;
+  background: rgba(26, 31, 58, 0.7);
+  border: 1px solid rgba(0, 217, 255, 0.2);
+  border-radius: 0.6rem;
+  color: #f1f5f9;
+  cursor: pointer;
+  text-align: center;
+  transition: all 200ms ease;
+}
+
+.opponent-folder:hover {
+  background: rgba(0, 217, 255, 0.12);
+  border-color: rgba(0, 217, 255, 0.4);
+}
+
+.opponent-folder.active {
+  border: 2px solid #00D9FF;
+  background: linear-gradient(135deg, rgba(0, 217, 255, 0.25), rgba(0, 217, 255, 0.08));
+}
+
+.opponent-folder-name {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.opponent-folder-meta {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.opponent-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(0, 217, 255, 0.15);
+  border-radius: 0.6rem;
+  overflow: hidden;
+}
+
+.opponent-list-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 80px;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 1rem;
+  background: rgba(26, 31, 58, 0.6);
+  border: none;
+  border-bottom: 1px solid rgba(0, 217, 255, 0.08);
+  color: #f1f5f9;
+  text-align: left;
+  font: inherit;
+}
+
+button.opponent-list-row {
+  cursor: pointer;
+}
+
+button.opponent-list-row:hover {
+  background: rgba(0, 217, 255, 0.1);
+}
+
+button.opponent-list-row.active {
+  background: rgba(0, 217, 255, 0.2);
+}
+
+.opponent-list-head {
+  background: rgba(0, 217, 255, 0.08);
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.opponent-list-opponent {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .opponent-folder-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .opponent-list-row {
+    grid-template-columns: 2fr 1fr 50px;
+  }
+}

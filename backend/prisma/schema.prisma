@@ -197,6 +197,7 @@ model CalendarEvent {
   endTime         DateTime?
   location        String?
   opponent        String?  // per partite
+  opponentLogo  String?  // URL logo avversario
   notes           String?
   createdBy       String?  // userId who created
   updatedBy       String?
@@ -437,6 +438,7 @@ model DailyReport {
 model ScoutingReport {
   id            String   @id @default(cuid())
   opponent      String
+  opponentLogo  String?
   date          DateTime @default(now())
   matchDate     DateTime?
   content       String?

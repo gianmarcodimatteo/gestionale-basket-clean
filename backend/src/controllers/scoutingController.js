@@ -65,7 +65,7 @@ export async function getScoutingReportById(req, res) {
 
 export async function createScoutingReport(req, res) {
   try {
-    const { opponent, matchDate, content, keyPlayers, strategy, notes, eventId, fileTitle } = req.body;
+    const { opponent, opponentLogo, matchDate, content, keyPlayers, strategy, notes, eventId, fileTitle } = req.body;
     const userId = req.user.id;
 
     if (!opponent) {
@@ -75,6 +75,7 @@ export async function createScoutingReport(req, res) {
     const report = await prisma.scoutingReport.create({
       data: {
         opponent,
+        opponentLogo: opponentLogo || null,
         matchDate: matchDate ? new Date(matchDate) : null,
         content,
         keyPlayers: keyPlayers ? JSON.stringify(keyPlayers) : null,
