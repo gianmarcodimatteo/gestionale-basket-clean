@@ -113,7 +113,7 @@ export const createStaff = async (req, res) => {
       return res.status(400).json({ error: 'Email già esistente' });
     }
 
-    const photoUrl = req.file ? `/uploads/staff/${req.file.filename}` : null;
+    const photoUrl = req.file ? req.file.location : null;
 
     const newStaff = await prisma.staff.create({
       data: {
@@ -165,7 +165,7 @@ export const updateStaff = async (req, res) => {
       }
     }
 
-    const photoUrl = req.file ? `/uploads/staff/${req.file.filename}` : undefined;
+    const photoUrl = req.file ? req.file.location : undefined;
 
     const updatedStaff = await prisma.staff.update({
       where: { id },
