@@ -5,7 +5,7 @@ import path from 'path';
 
 const BUCKET_NAME = 'geas-basket-storage';
 
-export const uploadToSpaces = async (file, folder) => {
+export const uploadToSpaces = async (file, folder, { acl = 'private' } = {}) => {
   try {
     const fileExtension = path.extname(file.originalname);
     const fileName = `${folder}/${uuidv4()}-${Date.now()}${fileExtension}`;
@@ -15,7 +15,7 @@ export const uploadToSpaces = async (file, folder) => {
       Key: fileName,
       Body: file.buffer,
       ContentType: file.mimetype,
-      ACL: 'private',
+      ACL: acl,
     };
 
     await spacesClient.send(new PutObjectCommand(params));

@@ -100,7 +100,7 @@ export const createRoster = async (req, res) => {
       return res.status(400).json({ error: 'Numero di maglia già in uso' });
     }
 
-    const photoUrl = req.file ? `/uploads/roster/${req.file.filename}` : null;
+    const photoUrl = req.file ? req.file.location : null;
 
     const newPlayer = await prisma.roster.create({
       data: {
@@ -168,7 +168,7 @@ export const updateRoster = async (req, res) => {
       }
     }
 
-    const photoUrl = req.file ? `/uploads/roster/${req.file.filename}` : undefined;
+    const photoUrl = req.file ? req.file.location : undefined;
 
     const updatedPlayer = await prisma.roster.update({
       where: { id },

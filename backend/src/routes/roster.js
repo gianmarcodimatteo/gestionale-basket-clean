@@ -1,7 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { uploadToSpaces } from '../utils/spacesUpload.js';
 import {
   getAllRoster,
   getRosterById,
@@ -16,20 +15,7 @@ import { verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Setup multer per upload foto
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const uploadDir = path.join(__dirname, '../../uploads/roster');
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  },
-});
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage,
@@ -43,6 +29,17 @@ const upload = multer({
     }
   },
 });
+
+const uploadPhotoToSpaces = async (req, res, next) => {
+  if (!req.file) return next();
+  try {
+    req.file.location = await uploadToSpaces(req.file, 'players', { acl: 'public-read' });
+    next();
+  } catch (error) {
+    console.error('Photo upload failed:', error.message);
+    res.status(500).json({ error: 'Errore nel caricamento della foto' });
+  }
+};
 
 // ============= GET ROUTES =============
 
@@ -58,12 +55,12 @@ router.get('/stats/summary', verifyToken, getRosterStats);
 // ============= CREATE ROUTES =============
 
 // Creare giocatrice
-router.post('/', verifyToken, upload.single('photo'), createRoster);
+router.post('/', verifyToken, upload.single('photo'), uploadPhotoToSpaces, createRoster);
 
 // ============= UPDATE ROUTES =============
 
 // Modificare giocatrice
-router.put('/:id', verifyToken, upload.single('photo'), updateRoster);
+router.put('/:id', verifyToken, upload.single('photo'), uploadPhotoToSpaces, updateRoster);
 
 // Aggiornare stats
 router.put('/:id/stats', verifyToken, updatePlayerStats);
